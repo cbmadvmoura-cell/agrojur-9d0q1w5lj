@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-16T14:25:46.516Z",
+  "generatedAt": "2026-09-16T19:48:40.015Z",
   "collections": [
     {
       "name": "users",
@@ -29,19 +29,154 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        },
+        {
+          "name": "role",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "operator",
+            "reviewer",
+            "publisher",
+            "admin"
+          ]
         }
       ],
       "indexes": [
         "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
         "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ]
+    },
+    {
+      "name": "contents",
+      "type": "base",
+      "apiRules": {
+        "list": "(status = 'PUBLISHED') || (@request.auth.id != '' && (author_id = @request.auth.id || reviewer_id = @request.auth.id || @request.auth.role = 'admin'))",
+        "view": "(status = 'PUBLISHED') || (@request.auth.id != '' && (author_id = @request.auth.id || reviewer_id = @request.auth.id || @request.auth.role = 'admin'))",
+        "create": "@request.auth.id != '' && @request.body.status = 'DRAFT' && @request.body.author_id = @request.auth.id",
+        "update": "@request.auth.id != '' && (\n  (@request.auth.role = 'admin') ||\n  (author_id = @request.auth.id && status = 'DRAFT' && @request.body.status = 'DRAFT') ||\n  (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW') ||\n  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'IN_REVIEW' && sources != '' && reviewer_id != '') ||\n  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'APPROVED' && sources != '' && reviewer_id != '') ||\n  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'DRAFT') ||\n  (@request.auth.role = 'publisher' && status = 'APPROVED' && @request.body.status = 'PUBLISHED') ||\n  (@request.auth.role = 'publisher' && status = 'PUBLISHED' && @request.body.status = 'ARCHIVED')\n)",
+        "delete": "@request.auth.id != '' && @request.auth.role = 'admin'"
+      },
+      "fields": [
+        {
+          "name": "slug",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "body",
+          "type": "editor",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "cluster",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "author_id",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "reviewer_id",
+          "type": "relation",
+          "required": false,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "DRAFT",
+            "IN_REVIEW",
+            "APPROVED",
+            "PUBLISHED",
+            "ARCHIVED"
+          ]
+        },
+        {
+          "name": "sources",
+          "type": "json",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reviewed_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "published_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "version",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_contents_slug ON contents (slug)",
+        "CREATE INDEX idx_contents_status ON contents (status)",
+        "CREATE INDEX idx_contents_cluster ON contents (cluster)"
       ]
     }
   ]

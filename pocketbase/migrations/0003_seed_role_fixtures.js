@@ -1,6 +1,9 @@
 // F1-T02 · SPEC-1-001 — fixtures sintéticas por papel (nenhum dado pessoal real).
 // Senhas são de demonstração, em ambiente de preview noindex, e serão trocadas
 // na operação real. Seeds idempotentes (try/catch nos finders que lançam erro).
+// RN-101: fixture sem fonte NÃO é criada — a prova negativa da aprovação sem
+// fonte é feita removendo a fonte de uma fixture existente no teste, pois a
+// própria regra de update exige fonte para sair de IN_REVIEW.
 migrate(
   (app) => {
     const users = app.findCollectionByNameOrId('_pb_users_auth_')

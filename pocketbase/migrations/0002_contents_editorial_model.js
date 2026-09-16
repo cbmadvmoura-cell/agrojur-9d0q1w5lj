@@ -4,12 +4,12 @@
 //
 // Regras server-side (fail-closed):
 // - list/view públicos: somente status = "PUBLISHED" (RN-102/CA-1-005);
-// - list/view autenticados: autor, revisor e admin veem tudo; demais papéis
-//   veem apenas registros em que participam;
+// - list/view autenticados: autor, revisor do registro e admin veem tudo;
 // - create: autenticado, nasce DRAFT (RN-106) — status DRAFT é imposto pela
 //   regra, nunca aceito do corpo da requisição;
-// - update: autor edita DRAFT; revisor transita DRAFT→IN_REVIEW→APPROVED
-//   (exigindo fonte e revisor); publisher só publica APPROVED e arquiva
+// - update: autor edita DRAFT; revisor transita DRAFT→IN_REVIEW (definindo o
+//   revisor), mantém IN_REVIEW e aprova/devolve SOMENTE com fonte e revisor
+//   presentes (RN-101/CA-1-005); publisher só publica APPROVED e arquiva
 //   PUBLISHED (CA-1-004/RN-103); admin mantém tudo; alteração de status por
 //   quem não tem alçada é recusada pelo próprio filtro da regra;
 // - delete: somente admin (histórico editorial é preservado; despublicar é
@@ -29,7 +29,7 @@ migrate(
         "@request.auth.id != '' && (\n" +
         "  (@request.auth.role = 'admin') ||\n" +
         "  (author_id = @request.auth.id && status = 'DRAFT' && @request.body.status = 'DRAFT') ||\n" +
-        "  (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW') ||\n" +
+        "  (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW' && @request.body.reviewer_id:isset = true) ||\n" +
         "  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'IN_REVIEW' && sources != '' && reviewer_id != '') ||\n" +
         "  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'APPROVED' && sources != '' && reviewer_id != '') ||\n" +
         "  (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && @request.body.status = 'DRAFT') ||\n" +

@@ -29,31 +29,21 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         },
         {
           "name": "role",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": [
-            "operator",
-            "reviewer",
-            "publisher",
-            "admin"
-          ]
+          "selectValues": ["operator", "reviewer", "publisher", "admin"]
         }
       ],
       "indexes": [
@@ -121,13 +111,7 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": [
-            "DRAFT",
-            "IN_REVIEW",
-            "APPROVED",
-            "PUBLISHED",
-            "ARCHIVED"
-          ]
+          "selectValues": ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "ARCHIVED"]
         },
         {
           "name": "sources",
@@ -158,19 +142,14 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate"
-          ]
+          "autodateTriggers": ["onCreate"]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": [
-            "onCreate",
-            "onUpdate"
-          ]
+          "autodateTriggers": ["onCreate", "onUpdate"]
         }
       ],
       "indexes": [

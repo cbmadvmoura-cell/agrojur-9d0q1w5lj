@@ -41,7 +41,6 @@ export type EditorialUser = RecordModel & {
 }
 
 const contents = () => pb.collection<ContentRecord>('contents')
-const versions = () => pb.collection<ContentVersionRecord>('content_versions')
 const users = () => pb.collection<EditorialUser>('users')
 
 export async function getEditorialContents() {
@@ -98,10 +97,11 @@ export async function updateEditorialContent(
 }
 
 export async function getEditorialHistory(contentId: string) {
-  return versions().getFullList({
-    sort: '-version',
-    filter: pb.filter('content_id = {:contentId}', { contentId }),
-  })
+  const result = await pb.send<{ items: ContentVersionRecord[] }>(
+    `/backend/v1/editorial/contents/${contentId}/history`,
+    { method: 'GET' },
+  )
+  return result.items
 }
 
 export async function getEditorialUsers() {

@@ -42,7 +42,7 @@ onRecordUpdate((e) => {
     IN_REVIEW: ['IN_REVIEW', 'APPROVED', 'DRAFT'],
     APPROVED: ['APPROVED', 'PUBLISHED'],
     PUBLISHED: ['PUBLISHED', 'ARCHIVED'],
-    ARCHIVED: ['ARCHIVED'],
+    ARCHIVED: ['ARCHIVED', 'IN_REVIEW'],
   }
 
   if (!validTransitions[previousStatus] || !validTransitions[previousStatus].includes(nextStatus)) {
@@ -51,6 +51,9 @@ onRecordUpdate((e) => {
 
   if (nextStatus === 'IN_REVIEW' && reviewerId === '') {
     throw new BadRequestError('Conteúdo em revisão precisa de revisor.')
+  }
+  if (previousStatus === 'ARCHIVED' && nextStatus === 'IN_REVIEW' && !hasSources) {
+    throw new BadRequestError('Conteúdo recuperado precisa manter uma fonte.')
   }
   if (
     (nextStatus === 'APPROVED' || nextStatus === 'PUBLISHED') &&

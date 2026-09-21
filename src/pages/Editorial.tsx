@@ -278,6 +278,13 @@ export default function Editorial() {
             secondary
           />
         )}
+      {selected.status === 'ARCHIVED' && (user?.role === 'reviewer' || user?.role === 'admin') && (
+        <ActionButton
+          onClick={() => transition('IN_REVIEW')}
+          icon={History}
+          label="Recuperar para revisão"
+        />
+      )}
     </div>
   ) : null
 

@@ -42,27 +42,35 @@ export default function Layout() {
             Preview • noindex
           </span>
 
-          <nav className="order-2 w-full sm:order-3 sm:w-auto" aria-label="Navegação principal">
-            <ul className="flex flex-wrap items-center justify-center gap-1 sm:justify-end">
-              {navigation.map((item) => (
-                <li key={item.to}>
-                  <NavLink
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) =>
-                      `inline-flex rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
-                        isActive
-                          ? 'bg-emerald-50 text-emerald-800'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <div className="order-2 flex w-full items-center justify-center gap-2 sm:order-3 sm:w-auto sm:justify-end">
+            <nav aria-label="Navegação principal">
+              <ul className="flex flex-wrap items-center justify-center gap-1 sm:justify-end">
+                {navigation.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      end={item.end}
+                      className={({ isActive }) =>
+                        `inline-flex rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
+                          isActive
+                            ? 'bg-emerald-50 text-emerald-800'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                        }`
+                      }
+                    >
+                      {item.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <Link
+              to="/editorial"
+              className="inline-flex rounded-lg border border-emerald-200 px-3 py-2 text-sm font-bold text-emerald-800 transition hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+            >
+              Área editorial
+            </Link>
+          </div>
         </div>
       </header>
 

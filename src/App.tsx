@@ -1,4 +1,4 @@
-/* Main App Component - Handles routing (using react-router-dom), query client and other providers - use this file to add all routes */
+/* Main App Component - Handles routing (using react-router-dom), query client and other providers */
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
@@ -7,26 +7,38 @@ import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import PortalSection from './pages/PortalSection'
-
-// ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
-// AVOID REMOVING ANY CONTEXT PROVIDERS FROM THIS FILE (e.g. TooltipProvider, Toaster, Sonner)
+import Login from './pages/Login'
+import Editorial from './pages/Editorial'
+import ProtectedRoute from './components/ProtectedRoute'
+import { AuthProvider } from './hooks/use-auth'
 
 const App = () => (
   <BrowserRouter>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Index />} />
-          <Route path="/temas" element={<PortalSection section="temas" />} />
-          <Route path="/blog" element={<PortalSection section="blog" />} />
-          <Route path="/diagnostico" element={<PortalSection section="diagnostico" />} />
-          <Route path="/calculadora" element={<PortalSection section="calculadora" />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/temas" element={<PortalSection section="temas" />} />
+            <Route path="/blog" element={<PortalSection section="blog" />} />
+            <Route path="/diagnostico" element={<PortalSection section="diagnostico" />} />
+            <Route path="/calculadora" element={<PortalSection section="calculadora" />} />
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/editorial"
+            element={
+              <ProtectedRoute>
+                <Editorial />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </TooltipProvider>
+    </AuthProvider>
   </BrowserRouter>
 )
 

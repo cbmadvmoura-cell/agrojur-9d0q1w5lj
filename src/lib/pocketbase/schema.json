@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T02:48:00.394Z",
+  "generatedAt": "2026-09-21T02:50:13.091Z",
   "collections": [
     {
       "name": "users",
@@ -67,7 +67,7 @@
       "apiRules": {
         "list": "(status = 'PUBLISHED') || (@request.auth.id != '' && ((author_id = @request.auth.id) || (reviewer_id = @request.auth.id) || (@request.auth.role = 'admin') || (@request.auth.role = 'reviewer' && status != 'PUBLISHED') || (@request.auth.role = 'publisher' && (status = 'APPROVED' || status = 'PUBLISHED'))))",
         "view": "(status = 'PUBLISHED') || (@request.auth.id != '' && ((author_id = @request.auth.id) || (reviewer_id = @request.auth.id) || (@request.auth.role = 'admin') || (@request.auth.role = 'reviewer' && status != 'PUBLISHED') || (@request.auth.role = 'publisher' && (status = 'APPROVED' || status = 'PUBLISHED'))))",
-        "create": "@request.auth.id != '' && (@request.auth.role = 'operator' || @request.auth.role = 'admin') && @request.body.status = 'DRAFT' && @request.body.author_id = @request.auth.id && @request.body.source_count >= 0",
+        "create": "@request.auth.id != '' && (@request.auth.role = 'operator' || @request.auth.role = 'admin') && @request.body.status = 'DRAFT' && @request.body.author_id = @request.auth.id",
         "update": "@request.auth.id != '' && ((@request.auth.role = 'admin') || (@request.auth.role = 'operator' && author_id = @request.auth.id && status = 'DRAFT' && @request.body.status = 'DRAFT') || (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW' && @request.body.reviewer_id = @request.auth.id) || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'APPROVED' && @request.body.source_count > 0) || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'DRAFT') || (@request.auth.role = 'publisher' && status = 'APPROVED' && @request.body.status = 'PUBLISHED' && @request.body.source_count > 0) || (@request.auth.role = 'publisher' && status = 'PUBLISHED' && @request.body.status = 'ARCHIVED'))",
         "delete": null
       },
@@ -175,7 +175,7 @@
         {
           "name": "source_count",
           "type": "number",
-          "required": true,
+          "required": false,
           "system": false
         }
       ],

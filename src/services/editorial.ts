@@ -18,6 +18,7 @@ export type ContentRecord = RecordModel & {
   reviewer_id: string
   status: EditorialStatus
   sources: EditorialSource[] | null
+  source_count: number
   reviewed_at: string
   published_at: string
   version: number
@@ -71,6 +72,7 @@ export async function createEditorialDraft(data: {
   return contents().create({
     ...data,
     status: 'DRAFT',
+    source_count: data.sources.length,
     version: 1,
   })
 }
@@ -80,7 +82,15 @@ export async function updateEditorialContent(
   data: Partial<
     Pick<
       ContentRecord,
-      'slug' | 'title' | 'summary' | 'body' | 'cluster' | 'reviewer_id' | 'status' | 'sources'
+      | 'slug'
+      | 'title'
+      | 'summary'
+      | 'body'
+      | 'cluster'
+      | 'reviewer_id'
+      | 'status'
+      | 'sources'
+      | 'source_count'
     >
   >,
 ) {

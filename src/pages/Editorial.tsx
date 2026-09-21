@@ -185,6 +185,7 @@ export default function Editorial() {
           cluster: form.cluster.trim(),
           author_id: user!.id,
           sources,
+          source_count: sources.length,
         })
         setIsCreating(false)
         setSelectedId(created.id)
@@ -197,6 +198,7 @@ export default function Editorial() {
           body: `<p>${form.body.trim()}</p>`,
           cluster: form.cluster.trim(),
           sources,
+          source_count: sources.length,
           reviewer_id: selected.reviewer_id,
           status: selected.status,
         })
@@ -215,7 +217,11 @@ export default function Editorial() {
     setError('')
     setMessage('')
     try {
-      const payload: Parameters<typeof updateEditorialContent>[1] = { status }
+      const payload: Parameters<typeof updateEditorialContent>[1] = {
+        status,
+        source_count: selected.source_count,
+        sources: selected.sources ?? [],
+      }
       if (status === 'IN_REVIEW' || status === 'APPROVED') payload.reviewer_id = user!.id
       await updateEditorialContent(selected.id, payload)
       setMessage(`Transição concluída: ${statusLabels[status]}.`)

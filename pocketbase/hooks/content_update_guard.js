@@ -8,12 +8,14 @@ onRecordUpdate((e) => {
   const nextSlug = record.getString('slug')
   const reviewerId = record.getString('reviewer_id')
   const sourcesValue = record.get('sources')
+  const sourceCount = Number(record.getString('source_count'))
 
   if (previousSlug !== nextSlug) {
     throw new BadRequestError('O slug não pode ser alterado depois da criação.')
   }
 
   const hasSources = (() => {
+    if (Number.isFinite(sourceCount) && sourceCount > 0) return true
     if (Array.isArray(sourcesValue)) return sourcesValue.length > 0
     if (typeof sourcesValue === 'string') {
       if (sourcesValue.trim() === '' || sourcesValue.trim() === '[]') return false
@@ -24,8 +26,27 @@ onRecordUpdate((e) => {
         return false
       }
     }
-    return Boolean(sourcesValue)
+    if (sourcesValue && typeof sourcesValue === 'object') {
+      try {
+        const parsed = JSON.parse(JSON.stringify(sourcesValue))
+        return Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0
+      } catch (_) {
+        return false
+      }
+    }
+    return false
   })()
+=======
+<<<<<<< SEARCH
+  if (
+    (nextStatus === 'APPROVED' || nextStatus === 'PUBLISHED') &&
+    (!hasSources || reviewerId === '')
+  ) {
+=======
+  if (
+    (nextStatus === 'APPROVED' || nextStatus === 'PUBLISHED') &&
+    (!hasSources || reviewerId === '')
+  ) {
 
   const validTransitions = {
     DRAFT: ['DRAFT', 'IN_REVIEW'],

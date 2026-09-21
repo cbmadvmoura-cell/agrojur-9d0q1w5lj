@@ -36,17 +36,6 @@ onRecordUpdate((e) => {
     }
     return false
   })()
-=======
-<<<<<<< SEARCH
-  if (
-    (nextStatus === 'APPROVED' || nextStatus === 'PUBLISHED') &&
-    (!hasSources || reviewerId === '')
-  ) {
-=======
-  if (
-    (nextStatus === 'APPROVED' || nextStatus === 'PUBLISHED') &&
-    (!hasSources || reviewerId === '')
-  ) {
 
   const validTransitions = {
     DRAFT: ['DRAFT', 'IN_REVIEW'],

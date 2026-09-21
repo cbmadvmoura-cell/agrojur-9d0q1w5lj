@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-21T02:41:49.236Z",
+  "generatedAt": "2026-09-21T02:48:00.394Z",
   "collections": [
     {
       "name": "users",
@@ -29,21 +29,31 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         },
         {
           "name": "role",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["operator", "reviewer", "publisher", "admin"]
+          "selectValues": [
+            "operator",
+            "reviewer",
+            "publisher",
+            "admin"
+          ]
         }
       ],
       "indexes": [
@@ -57,8 +67,8 @@
       "apiRules": {
         "list": "(status = 'PUBLISHED') || (@request.auth.id != '' && ((author_id = @request.auth.id) || (reviewer_id = @request.auth.id) || (@request.auth.role = 'admin') || (@request.auth.role = 'reviewer' && status != 'PUBLISHED') || (@request.auth.role = 'publisher' && (status = 'APPROVED' || status = 'PUBLISHED'))))",
         "view": "(status = 'PUBLISHED') || (@request.auth.id != '' && ((author_id = @request.auth.id) || (reviewer_id = @request.auth.id) || (@request.auth.role = 'admin') || (@request.auth.role = 'reviewer' && status != 'PUBLISHED') || (@request.auth.role = 'publisher' && (status = 'APPROVED' || status = 'PUBLISHED'))))",
-        "create": "@request.auth.id != '' && (@request.auth.role = 'operator' || @request.auth.role = 'admin') && @request.body.status = 'DRAFT' && @request.body.author_id = @request.auth.id",
-        "update": "@request.auth.id != '' && ((@request.auth.role = 'admin') || (@request.auth.role = 'operator' && author_id = @request.auth.id && status = 'DRAFT' && @request.body.status = 'DRAFT') || (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW' && @request.body.reviewer_id = @request.auth.id) || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'APPROVED') || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'DRAFT') || (@request.auth.role = 'publisher' && status = 'APPROVED' && @request.body.status = 'PUBLISHED') || (@request.auth.role = 'publisher' && status = 'PUBLISHED' && @request.body.status = 'ARCHIVED'))",
+        "create": "@request.auth.id != '' && (@request.auth.role = 'operator' || @request.auth.role = 'admin') && @request.body.status = 'DRAFT' && @request.body.author_id = @request.auth.id && @request.body.source_count >= 0",
+        "update": "@request.auth.id != '' && ((@request.auth.role = 'admin') || (@request.auth.role = 'operator' && author_id = @request.auth.id && status = 'DRAFT' && @request.body.status = 'DRAFT') || (@request.auth.role = 'reviewer' && status = 'DRAFT' && @request.body.status = 'IN_REVIEW' && @request.body.reviewer_id = @request.auth.id) || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'APPROVED' && @request.body.source_count > 0) || (@request.auth.role = 'reviewer' && status = 'IN_REVIEW' && reviewer_id = @request.auth.id && @request.body.reviewer_id = @request.auth.id && @request.body.status = 'DRAFT') || (@request.auth.role = 'publisher' && status = 'APPROVED' && @request.body.status = 'PUBLISHED' && @request.body.source_count > 0) || (@request.auth.role = 'publisher' && status = 'PUBLISHED' && @request.body.status = 'ARCHIVED'))",
         "delete": null
       },
       "fields": [
@@ -111,7 +121,13 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "ARCHIVED"]
+          "selectValues": [
+            "DRAFT",
+            "IN_REVIEW",
+            "APPROVED",
+            "PUBLISHED",
+            "ARCHIVED"
+          ]
         },
         {
           "name": "sources",
@@ -142,14 +158,25 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        },
+        {
+          "name": "source_count",
+          "type": "number",
+          "required": true,
+          "system": false
         }
       ],
       "indexes": [
@@ -187,7 +214,13 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["DRAFT", "IN_REVIEW", "APPROVED", "PUBLISHED", "ARCHIVED"]
+          "selectValues": [
+            "DRAFT",
+            "IN_REVIEW",
+            "APPROVED",
+            "PUBLISHED",
+            "ARCHIVED"
+          ]
         },
         {
           "name": "transition",
@@ -213,14 +246,19 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         }
       ],
       "indexes": [

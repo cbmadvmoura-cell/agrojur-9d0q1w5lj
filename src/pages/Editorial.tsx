@@ -40,11 +40,11 @@ const statusLabels: Record<EditorialStatus, string> = {
 }
 
 const statusStyles: Record<EditorialStatus, string> = {
-  DRAFT: 'border-slate-200 bg-slate-100 text-slate-700',
-  IN_REVIEW: 'border-amber-200 bg-amber-50 text-amber-800',
-  APPROVED: 'border-blue-200 bg-blue-50 text-blue-800',
-  PUBLISHED: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  ARCHIVED: 'border-violet-200 bg-violet-50 text-violet-800',
+  DRAFT: 'border-[#4A3912]/40 bg-[#1A1812] text-[#DCBF6F]',
+  IN_REVIEW: 'border-[#C9A227]/50 bg-[#241F10] text-[#F2E6BF]',
+  APPROVED: 'border-sky-500/30 bg-sky-950/30 text-sky-200',
+  PUBLISHED: 'border-[#C9A227] bg-[#1F1B0B] text-[#FAF3E8]',
+  ARCHIVED: 'border-stone-700 bg-stone-900 text-stone-400',
 }
 
 const roleLabels = {
@@ -185,7 +185,6 @@ export default function Editorial() {
           cluster: form.cluster.trim(),
           author_id: user!.id,
           sources,
-          source_count: sources.length,
         })
         setIsCreating(false)
         setSelectedId(created.id)
@@ -289,63 +288,70 @@ export default function Editorial() {
   ) : null
 
   return (
-    <div className="min-h-[calc(100vh-190px)] bg-slate-50">
-      <section className="border-b border-slate-200 bg-slate-950 text-white">
+    <div className="min-h-[calc(100vh-190px)] bg-[#0A0A0A] text-[#F5F1E8]">
+      <section className="border-b border-[#C9A227]/20 bg-gradient-to-b from-[#111111] to-[#0A0A0A] text-[#FAF3E8]">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <Link to="/" className="text-sm font-bold text-emerald-300 hover:text-white">
-                ← Preview público
+              <Link
+                to="/"
+                className="group inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#C9A227] hover:text-[#FAF3E8]"
+              >
+                ← Voltar ao preview público
               </Link>
-              <p className="mt-7 text-sm font-bold uppercase tracking-[0.18em] text-emerald-300">
+              <div className="mt-6 inline-flex items-center gap-2 rounded border border-[#C9A227]/30 bg-[#16140E] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#DCBF6F]">
+                <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
                 Área editorial protegida
-              </p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+              </div>
+              <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-5xl">
                 Governança antes da publicação.
               </h1>
-              <p className="mt-4 max-w-2xl leading-7 text-slate-300">
+              <p className="mt-4 max-w-2xl font-sans text-xs leading-relaxed text-[#B8AF9F]">
                 Fluxo demonstrativo persistente com estados, papéis, validações server-side e
                 histórico de versões.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-emerald-200">
+              <span className="rounded border border-[#C9A227]/40 bg-[#16140E] px-3 py-1.5 font-mono text-xs text-[#DCBF6F]">
                 {user?.name || user?.email} · {user ? roleLabels[user.role] : ''}
               </span>
               <button
                 onClick={signOut}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="inline-flex items-center gap-2 rounded border border-[#C9A227]/30 bg-[#141414] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#FAF3E8] transition hover:border-[#C9A227] hover:text-[#DCBF6F]"
               >
-                <LogOut size={16} aria-hidden="true" /> Sair
+                <LogOut size={14} aria-hidden="true" /> Sair
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
+      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
         <section className="space-y-6" aria-labelledby="content-list-title">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
                 Conteúdos persistidos
               </p>
-              <h2 id="content-list-title" className="mt-2 text-2xl font-black text-slate-950">
+              <h2
+                id="content-list-title"
+                className="mt-1 font-serif text-2xl font-semibold text-[#FAF3E8]"
+              >
                 Fila editorial
               </h2>
             </div>
             {canCreate && (
               <button
                 onClick={startCreate}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className="inline-flex items-center gap-2 rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] transition hover:brightness-110"
               >
-                <FilePlus2 size={17} aria-hidden="true" /> Novo rascunho
+                <FilePlus2 size={15} aria-hidden="true" /> Novo rascunho
               </button>
             )}
           </div>
 
           {visibleContents.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">
+            <div className="rounded-lg border border-dashed border-[#C9A227]/30 bg-[#111111] p-8 text-center text-xs text-[#9E9585]">
               Nenhum conteúdo acessível para este papel.
             </div>
           ) : (
@@ -354,22 +360,28 @@ export default function Editorial() {
                 <button
                   key={content.id}
                   onClick={() => selectContent(content)}
-                  className={`w-full rounded-2xl border bg-white p-5 text-left shadow-sm transition hover:border-emerald-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${selectedId === content.id ? 'border-emerald-500 ring-2 ring-emerald-100' : 'border-slate-200'}`}
+                  className={`w-full rounded-lg border p-5 text-left transition-all ${
+                    selectedId === content.id
+                      ? 'border-[#C9A227] bg-[#1A1812] shadow-[0_0_15px_rgba(201,162,39,0.2)]'
+                      : 'border-[#C9A227]/20 bg-[#121212] hover:border-[#C9A227]/50 hover:bg-[#161512]'
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                      <p className="font-mono text-[10px] uppercase tracking-wider text-[#9E9585]">
                         v{content.version} · {content.cluster}
                       </p>
-                      <h3 className="mt-2 font-black text-slate-950">{content.title}</h3>
+                      <h3 className="mt-1.5 font-serif text-base font-semibold text-[#FAF3E8]">
+                        {content.title}
+                      </h3>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-bold ${statusStyles[content.status]}`}
+                      className={`shrink-0 rounded border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase ${statusStyles[content.status]}`}
                     >
                       {statusLabels[content.status]}
                     </span>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+                  <p className="mt-2.5 line-clamp-2 font-sans text-xs leading-relaxed text-[#A39985]">
                     {content.summary}
                   </p>
                 </button>
@@ -377,48 +389,48 @@ export default function Editorial() {
             </div>
           )}
 
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-6 text-emerald-950">
+          <div className="rounded-lg border border-[#C9A227]/25 bg-[#14120B] p-4 text-xs leading-relaxed text-[#DCBF6F]">
             <div className="flex gap-3">
               <ShieldCheck
-                className="mt-0.5 shrink-0 text-emerald-700"
-                size={19}
+                className="mt-0.5 shrink-0 text-[#C9A227]"
+                size={18}
                 aria-hidden="true"
               />
               <p>
-                <strong>Fail-closed:</strong> conteúdo sem fonte, revisor ou aprovação não pode
-                chegar ao status público.
+                <strong className="text-[#FAF3E8]">Fail-closed:</strong> conteúdo sem fonte, revisor
+                ou aprovação não pode chegar ao status público.
               </p>
             </div>
           </div>
 
           {canManageRoles && (
             <section
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-lg border border-[#C9A227]/25 bg-[#121212] p-5 shadow-sm"
               aria-labelledby="roles-title"
             >
-              <div className="flex items-center gap-3">
-                <UserCog className="text-emerald-700" size={20} aria-hidden="true" />
-                <h2 id="roles-title" className="font-black text-slate-950">
+              <div className="flex items-center gap-2.5">
+                <UserCog className="text-[#C9A227]" size={18} aria-hidden="true" />
+                <h2 id="roles-title" className="font-serif text-base font-semibold text-[#FAF3E8]">
                   Matriz de papéis
                 </h2>
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-xs leading-relaxed text-[#9E9585]">
                 Atribuição de papéis é exclusiva do admin. O próprio papel não pode ser alterado.
               </p>
               <div className="mt-4 space-y-3">
                 {users.map((target) => (
                   <div
                     key={target.id}
-                    className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3 text-sm"
+                    className="flex flex-wrap items-center justify-between gap-3 border-t border-[#252525] pt-3 text-xs"
                   >
-                    <span className="font-semibold text-slate-800">{target.email}</span>
+                    <span className="font-mono text-[#E8DFD0]">{target.email}</span>
                     <select
                       value={target.role}
                       disabled={target.id === user?.id}
                       onChange={(event) =>
                         void changeRole(target, event.target.value as EditorialUser['role'])
                       }
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold disabled:bg-slate-100"
+                      className="rounded border border-[#C9A227]/30 bg-[#0A0A0A] px-3 py-1.5 text-xs text-[#FAF3E8] disabled:opacity-40"
                     >
                       {Object.entries(roleLabels).map(([value, label]) => (
                         <option key={value} value={value}>
@@ -434,21 +446,23 @@ export default function Editorial() {
         </section>
 
         <section
-          className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm sm:p-8"
           aria-labelledby="editor-title"
         >
           {!selected && !isCreating ? (
             <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
-              <ClipboardList className="text-emerald-700" size={38} aria-hidden="true" />
-              <h2 className="mt-5 text-2xl font-black text-slate-950">Selecione um conteúdo</h2>
-              <p className="mt-3 max-w-md leading-7 text-slate-600">
+              <ClipboardList className="text-[#C9A227]" size={36} aria-hidden="true" />
+              <h2 className="mt-5 font-serif text-2xl font-semibold text-[#FAF3E8]">
+                Selecione um conteúdo
+              </h2>
+              <p className="mt-3 max-w-md font-sans text-xs leading-relaxed text-[#9E9585]">
                 Acompanhe os dados, o estado atual, as ações permitidas e o histórico de versões sem
                 expor rascunhos ao público.
               </p>
               {canCreate && (
                 <button
                   onClick={startCreate}
-                  className="mt-7 rounded-xl bg-emerald-700 px-5 py-3 font-bold text-white hover:bg-emerald-800"
+                  className="mt-7 rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] transition hover:brightness-110"
                 >
                   Criar primeiro rascunho
                 </button>
@@ -458,16 +472,19 @@ export default function Editorial() {
             <>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
                     {isCreating ? 'Novo conteúdo' : 'Editor editorial'}
                   </p>
-                  <h2 id="editor-title" className="mt-2 text-2xl font-black text-slate-950">
+                  <h2
+                    id="editor-title"
+                    className="mt-1.5 font-serif text-2xl font-semibold text-[#FAF3E8]"
+                  >
                     {isCreating ? 'Criar rascunho' : selected?.title}
                   </h2>
                 </div>
                 {!isCreating && selected && (
                   <span
-                    className={`rounded-full border px-3 py-1.5 text-xs font-bold ${statusStyles[selected.status]}`}
+                    className={`rounded border px-3 py-1 font-mono text-[10px] font-semibold uppercase ${statusStyles[selected.status]}`}
                   >
                     {statusLabels[selected.status]} · v{selected.version}
                   </span>
@@ -502,14 +519,14 @@ export default function Editorial() {
                     onChange={(value) => updateField('cluster', value)}
                     required
                   />
-                  <label className="block text-sm font-bold text-slate-800">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-[#C4BBAE]">
                     Corpo demonstrativo
                     <textarea
                       value={form.body}
                       onChange={(event) => updateField('body', event.target.value)}
                       rows={6}
                       required
-                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                      className="mt-2 w-full rounded border border-[#C9A227]/30 bg-[#0A0A0A] px-4 py-3 font-sans text-xs text-[#FAF3E8] outline-none transition focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]"
                     />
                   </label>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -525,21 +542,21 @@ export default function Editorial() {
                       type="url"
                     />
                   </div>
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
-                    Salvar cria ou mantém <strong>DRAFT</strong>. Para ficar público, ainda será
-                    necessário revisor e publisher.
+                  <div className="rounded border border-[#C9A227]/25 bg-[#16140E] p-4 text-xs leading-relaxed text-[#DCBF6F]">
+                    Salvar cria ou mantém <strong className="text-[#FAF3E8]">DRAFT</strong>. Para
+                    ficar público, ainda será necessário revisor e publisher.
                   </div>
                   <button
                     disabled={isSaving}
                     type="submit"
-                    className="rounded-xl bg-emerald-700 px-5 py-3 font-bold text-white hover:bg-emerald-800 disabled:opacity-60"
+                    className="rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] transition hover:brightness-110 disabled:opacity-60"
                   >
                     {isSaving ? 'Salvando…' : isCreating ? 'Criar rascunho' : 'Salvar nova versão'}
                   </button>
                 </form>
               ) : (
-                <div className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                  <p className="text-sm leading-7 text-slate-700">
+                <div className="mt-7 rounded-lg border border-[#C9A227]/20 bg-[#121212] p-5">
+                  <p className="text-xs leading-relaxed text-[#A39985]">
                     Este papel não pode editar o conteúdo neste estado. Use somente as ações
                     compatíveis com a sua alçada.
                   </p>
@@ -548,49 +565,51 @@ export default function Editorial() {
 
               {!isCreating && selected && (
                 <>
-                  <div className="mt-7 border-t border-slate-200 pt-6">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                  <div className="mt-7 border-t border-[#C9A227]/20 pt-6">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
                       Ações permitidas
                     </p>
                     <div className="mt-3">
                       {actionButtons || (
-                        <p className="text-sm text-slate-600">
+                        <p className="text-xs text-[#9E9585]">
                           Nenhuma ação disponível para este papel neste estado.
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="mt-7 border-t border-slate-200 pt-6">
+                  <div className="mt-7 border-t border-[#C9A227]/20 pt-6">
                     <button
                       onClick={() => setShowHistory((visible) => !visible)}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-slate-800 hover:text-emerald-700"
+                      className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#FAF3E8] hover:text-[#DCBF6F]"
                     >
-                      <History size={17} aria-hidden="true" /> Histórico de versões{' '}
+                      <History size={15} aria-hidden="true" /> Histórico de versões{' '}
                       <ChevronDown
                         className={`transition ${showHistory ? 'rotate-180' : ''}`}
-                        size={16}
+                        size={14}
                         aria-hidden="true"
                       />
                     </button>
                     {showHistory && (
                       <div className="mt-4 space-y-3">
                         {history.length === 0 ? (
-                          <p className="text-sm text-slate-600">
+                          <p className="text-xs text-[#9E9585]">
                             Nenhum evento de histórico acessível.
                           </p>
                         ) : (
                           history.map((entry) => (
                             <div
                               key={entry.id}
-                              className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm"
+                              className="rounded border border-[#C9A227]/20 bg-[#0F0F0F] p-4 text-xs"
                             >
                               <div className="flex flex-wrap justify-between gap-2">
-                                <strong className="text-slate-900">
+                                <strong className="font-mono text-[#FAF3E8]">
                                   v{entry.version} · {entry.transition}
                                 </strong>
-                                <span className="text-slate-500">{statusLabels[entry.status]}</span>
+                                <span className="font-mono text-[#DCBF6F]">
+                                  {statusLabels[entry.status]}
+                                </span>
                               </div>
-                              <p className="mt-2 text-slate-600">
+                              <p className="mt-2 text-[#9E9585]">
                                 Registro persistente da transição editorial.
                               </p>
                             </div>
@@ -606,7 +625,7 @@ export default function Editorial() {
 
           {(message || error) && (
             <div
-              className={`mt-6 rounded-xl border px-4 py-3 text-sm leading-6 ${error ? 'border-red-200 bg-red-50 text-red-800' : 'border-emerald-200 bg-emerald-50 text-emerald-900'}`}
+              className={`mt-6 rounded border px-4 py-3 text-xs leading-relaxed ${error ? 'border-red-500/40 bg-red-950/40 text-red-300' : 'border-[#C9A227]/40 bg-[#16140E] text-[#DCBF6F]'}`}
               role={error ? 'alert' : 'status'}
             >
               {error || message}
@@ -634,16 +653,16 @@ function Field({
   type?: string
 }) {
   return (
-    <label className="block text-sm font-bold text-slate-800">
+    <label className="block text-xs font-semibold uppercase tracking-wider text-[#C4BBAE]">
       {label}
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+        className="mt-2 w-full rounded border border-[#C9A227]/30 bg-[#0A0A0A] px-4 py-2.5 font-sans text-xs text-[#FAF3E8] outline-none transition focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]"
       />
-      {hint && <span className="mt-1 block text-xs font-normal text-slate-500">{hint}</span>}
+      {hint && <span className="mt-1 block font-mono text-[10px] text-[#7A7366]">{hint}</span>}
     </label>
   )
 }
@@ -662,9 +681,13 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${secondary ? 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50' : 'bg-emerald-700 text-white hover:bg-emerald-800'}`}
+      className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-xs font-bold uppercase tracking-wider transition ${
+        secondary
+          ? 'border-[#C9A227]/30 bg-[#141414] text-[#FAF3E8] hover:border-[#C9A227] hover:text-[#DCBF6F]'
+          : 'border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] text-[#0C0C0C] hover:brightness-110'
+      }`}
     >
-      <Icon size={16} aria-hidden="true" />
+      <Icon size={14} aria-hidden="true" />
       {label}
     </button>
   )

@@ -27,40 +27,46 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-950 sm:px-6">
+    <main className="min-h-screen bg-[#070707] px-4 py-12 text-[#F5F1E8] sm:px-6">
       <div className="mx-auto max-w-5xl">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm font-bold text-emerald-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+          className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#C9A227] transition hover:text-[#FAF3E8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]"
         >
-          <ArrowLeft size={17} aria-hidden="true" /> Voltar ao preview público
+          <ArrowLeft
+            size={16}
+            className="transition-transform group-hover:-translate-x-1"
+            aria-hidden="true"
+          />
+          <span>Voltar ao preview público</span>
         </Link>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <section className="text-white">
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-300">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <section className="text-[#F5F1E8]">
+            <div className="inline-flex items-center gap-2 rounded border border-[#C9A227]/30 bg-[#16140E] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#DCBF6F]">
+              <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
               Área editorial protegida
-            </p>
-            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
+            </div>
+            <h1 className="mt-5 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-5xl">
               Conteúdo só avança com a alçada certa.
             </h1>
-            <p className="mt-5 max-w-xl leading-8 text-slate-300">
+            <p className="mt-5 max-w-xl font-sans text-sm leading-relaxed text-[#B8AF9F]">
               Entre com uma conta sintética para demonstrar criação, revisão, aprovação e publicação
               no ambiente de teste. A autorização é aplicada no servidor, não apenas nesta tela.
             </p>
-            <div className="mt-8 space-y-4 text-sm text-slate-300">
-              <div className="flex items-start gap-3">
+            <div className="mt-8 space-y-4 font-sans text-xs text-[#C4BBAE]">
+              <div className="flex items-start gap-3 rounded border border-[#C9A227]/20 bg-[#12110D] p-3.5">
                 <ShieldCheck
-                  className="mt-0.5 shrink-0 text-emerald-300"
-                  size={20}
+                  className="mt-0.5 shrink-0 text-[#DCBF6F]"
+                  size={18}
                   aria-hidden="true"
                 />
                 <span>Visitantes só enxergam conteúdos com status PUBLISHED.</span>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 rounded border border-[#C9A227]/20 bg-[#12110D] p-3.5">
                 <LockKeyhole
-                  className="mt-0.5 shrink-0 text-emerald-300"
-                  size={20}
+                  className="mt-0.5 shrink-0 text-[#DCBF6F]"
+                  size={18}
                   aria-hidden="true"
                 />
                 <span>Operador, revisor e publisher têm permissões separadas.</span>
@@ -69,19 +75,28 @@ export default function Login() {
           </section>
 
           <section
-            className="rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+            className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0D0D0D] p-7 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(201,162,39,0.2)] sm:p-9"
             aria-labelledby="login-title"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+            {/* Detalhes de cantoneiras douradas clássicas */}
+            <div className="absolute top-2 left-2 h-3 w-3 border-t border-l border-[#C9A227]/60" />
+            <div className="absolute top-2 right-2 h-3 w-3 border-t border-r border-[#C9A227]/60" />
+            <div className="absolute bottom-2 left-2 h-3 w-3 border-b border-l border-[#C9A227]/60" />
+            <div className="absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[#C9A227]/60" />
+
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
               Preview · noindex
             </p>
-            <h2 id="login-title" className="mt-3 text-2xl font-black text-slate-950">
+            <h2 id="login-title" className="mt-2 font-serif text-2xl font-semibold text-[#FAF3E8]">
               Entrar na área editorial
             </h2>
             <form className="mt-7 space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label className="text-sm font-bold text-slate-800" htmlFor="email">
-                  E-mail
+                <label
+                  className="text-xs font-semibold uppercase tracking-wider text-[#C4BBAE]"
+                  htmlFor="email"
+                >
+                  E-mail institucional
                 </label>
                 <input
                   id="email"
@@ -90,12 +105,15 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded border border-[#C9A227]/30 bg-[#0A0A0A] px-4 py-3 text-sm text-[#FAF3E8] outline-none transition focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]"
                 />
               </div>
               <div>
-                <label className="text-sm font-bold text-slate-800" htmlFor="password">
-                  Senha
+                <label
+                  className="text-xs font-semibold uppercase tracking-wider text-[#C4BBAE]"
+                  htmlFor="password"
+                >
+                  Chave de acesso
                 </label>
                 <input
                   id="password"
@@ -104,12 +122,12 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                  className="mt-2 w-full rounded border border-[#C9A227]/30 bg-[#0A0A0A] px-4 py-3 text-sm text-[#FAF3E8] outline-none transition focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]"
                 />
               </div>
               {error && (
                 <p
-                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800"
+                  className="rounded border border-red-500/40 bg-red-950/40 px-4 py-3 text-xs leading-relaxed text-red-300"
                   role="alert"
                 >
                   {error}
@@ -118,12 +136,12 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-xl bg-emerald-700 px-5 py-3 font-bold text-white transition hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className="w-full rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] transition-all hover:brightness-110 hover:shadow-[0_0_20px_rgba(201,162,39,0.35)] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
               >
-                {submitting ? 'Validando…' : 'Entrar com segurança'}
+                {submitting ? 'Validando credencial…' : 'Entrar com segurança'}
               </button>
             </form>
-            <p className="mt-6 text-xs leading-5 text-slate-500">
+            <p className="mt-6 text-[11px] leading-relaxed text-[#7A7366]">
               As contas desta tela são fixtures sintéticas do preview e não representam pessoas
               reais.
             </p>

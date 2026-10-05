@@ -35,132 +35,210 @@ const areas = [
 
 const Index = () => {
   return (
-    <div>
-      <section className="border-b border-emerald-950/10 bg-[radial-gradient(circle_at_top_right,_rgba(167,243,208,0.7),_transparent_38%),linear-gradient(135deg,#ecfdf5_0%,#ffffff_62%)]">
-        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:px-8 lg:py-24">
+    <div className="bg-[#0A0A0A] text-[#F5F1E8]">
+      {/* Hero Section Imponente com Visual Jurídico de Alto Luxo */}
+      <section className="relative overflow-hidden border-b border-[#C9A227]/20 bg-gradient-to-b from-[#111111] via-[#0D0D0D] to-[#0A0A0A]">
+        {/* Glow dourado sutil e textura de fundo */}
+        <div className="pointer-events-none absolute -top-40 right-1/4 h-[500px] w-[500px] rounded-full bg-[#C9A227]/10 blur-[130px]" />
+        <div className="pointer-events-none absolute top-1/2 -left-20 h-[350px] w-[350px] rounded-full bg-[#8E6F16]/10 blur-[120px]" />
+
+        {/* Grade de linhas clássicas finas */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              'linear-gradient(#C9A227 1px, transparent 1px), linear-gradient(to right, #C9A227 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
+
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.25fr_0.75fr] lg:items-center lg:px-8 lg:py-28">
           <div>
-            <p className="mb-5 inline-flex rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">
+            <div className="mb-6 inline-flex items-center gap-2 rounded border border-[#C9A227]/30 bg-[#16140E]/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#DCBF6F] backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
               Ambiente de teste · conteúdo sintético
-            </p>
-            <h1 className="max-w-3xl font-display text-4xl font-black leading-tight tracking-tight text-slate-950 sm:text-6xl">
-              Um ponto de partida seguro para o Portal Agrojur.
+            </div>
+
+            <h1 className="font-serif text-4xl font-normal leading-[1.12] tracking-tight text-[#FAF3E8] sm:text-6xl lg:text-[4rem]">
+              Um ponto de partida seguro para o{' '}
+              <span className="italic font-serif font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#FAF3E8] via-[#DCBF6F] to-[#C9A227]">
+                Portal Agrojur.
+              </span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 sm:text-xl">
+
+            <p className="mt-7 max-w-2xl font-sans text-base leading-relaxed text-[#C4BBAE] sm:text-lg">
               Este preview apresenta a estrutura pública mínima do portal. Ele serve para validar
               caminhos e linguagem antes de qualquer conteúdo real ou publicação definitiva.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+
+            {/* Ações com botões em dourado nobre e moldura jurídica */}
+            <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link
                 to="/temas"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 font-bold text-white shadow-sm transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] shadow-[0_4px_20px_rgba(201,162,39,0.25)] transition-all duration-300 hover:shadow-[0_0_25px_rgba(201,162,39,0.45)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
               >
-                Explorar temas <ArrowRight size={18} aria-hidden="true" />
+                <span>Explorar temas</span>
+                <ArrowRight
+                  size={16}
+                  className="transition-transform duration-200 group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
               </Link>
               <Link
                 to="/blog"
-                className="inline-flex items-center rounded-xl border border-slate-300 bg-white px-5 py-3 font-bold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                className="group inline-flex items-center gap-2 rounded border border-[#C9A227]/40 bg-[#141414] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E8DFD0] transition-all duration-200 hover:border-[#C9A227] hover:bg-[#1C1A14] hover:text-[#DCBF6F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
               >
-                Ver blog demonstrativo
+                <span>Ver blog demonstrativo</span>
               </Link>
+            </div>
+
+            {/* Selo institucional Moura e Medeiros */}
+            <div className="mt-12 flex items-center gap-3 text-xs tracking-widest text-[#9E9585] uppercase">
+              <span className="h-px w-8 bg-[#C9A227]/40" />
+              <span>Advocacia do Agronegócio</span>
+              <span className="h-px w-8 bg-[#C9A227]/40" />
             </div>
           </div>
 
+          {/* Aside: Card de Status estilo Certificado Jurídico / Placa de Prestígio */}
           <aside
-            className="rounded-3xl border border-emerald-200 bg-white/85 p-6 shadow-[0_20px_60px_-30px_rgba(6,78,59,0.45)] sm:p-8"
+            className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#161512] to-[#0E0E0E] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(201,162,39,0.2)] sm:p-8"
             aria-label="Resumo do ambiente"
           >
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
+            {/* Detalhes de cantoneiras douradas clássicas */}
+            <div className="absolute top-2 left-2 h-3 w-3 border-t border-l border-[#C9A227]/60" />
+            <div className="absolute top-2 right-2 h-3 w-3 border-t border-r border-[#C9A227]/60" />
+            <div className="absolute bottom-2 left-2 h-3 w-3 border-b border-l border-[#C9A227]/60" />
+            <div className="absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[#C9A227]/60" />
+
+            <div className="flex items-center justify-between gap-4 border-b border-[#C9A227]/20 pb-5">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
                   Status do ambiente
                 </p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950">Preview controlado</h2>
+                <h2 className="mt-1.5 font-serif text-2xl font-semibold tracking-tight text-[#FAF3E8]">
+                  Preview controlado
+                </h2>
               </div>
-              <span
-                className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_0_6px_rgba(16,185,129,0.12)]"
-                aria-label="Ambiente disponível"
-              />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#C9A227]/40 bg-[#1F1C14] shadow-[0_0_12px_rgba(201,162,39,0.2)]">
+                <span
+                  className="h-2.5 w-2.5 rounded-full bg-[#C9A227] animate-pulse shadow-[0_0_8px_#C9A227]"
+                  aria-label="Ambiente disponível"
+                />
+              </div>
             </div>
-            <dl className="mt-6 space-y-4 text-sm">
-              <div className="flex items-start justify-between gap-4">
-                <dt className="text-slate-500">Visibilidade</dt>
-                <dd className="text-right font-bold text-slate-900">Pública, sem indexação</dd>
+
+            <dl className="mt-6 space-y-4 text-xs">
+              <div className="flex items-center justify-between gap-4 border-b border-[#252525] pb-3">
+                <dt className="text-[#9E9585]">Visibilidade</dt>
+                <dd className="font-mono text-right font-medium text-[#FAF3E8]">
+                  Pública, sem indexação
+                </dd>
               </div>
-              <div className="flex items-start justify-between gap-4">
-                <dt className="text-slate-500">Conteúdo</dt>
-                <dd className="text-right font-bold text-slate-900">Sintético e sinalizado</dd>
+              <div className="flex items-center justify-between gap-4 border-b border-[#252525] pb-3">
+                <dt className="text-[#9E9585]">Conteúdo</dt>
+                <dd className="font-mono text-right font-medium text-[#FAF3E8]">
+                  Sintético e sinalizado
+                </dd>
               </div>
-              <div className="flex items-start justify-between gap-4">
-                <dt className="text-slate-500">Coleta de dados</dt>
-                <dd className="text-right font-bold text-slate-900">Desativada nesta fase</dd>
+              <div className="flex items-center justify-between gap-4 pt-1">
+                <dt className="text-[#9E9585]">Coleta de dados</dt>
+                <dd className="font-mono text-right font-medium text-[#FAF3E8]">
+                  Desativada nesta fase
+                </dd>
               </div>
             </dl>
+
+            <div className="mt-6 rounded border border-[#C9A227]/20 bg-[#12110D] p-3 text-[11px] leading-relaxed text-[#DCBF6F]/90">
+              Ambiente de conformidade técnica e validação prévia.
+            </div>
           </aside>
         </div>
       </section>
 
+      {/* Grid de Seções com Acabamento Jurídico Nobre */}
       <section
-        className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"
+        className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24"
         aria-labelledby="areas-title"
       >
         <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-emerald-700">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
+            <span className="h-1 w-1 bg-[#C9A227]" />
             Estrutura mínima
-          </p>
+          </div>
           <h2
             id="areas-title"
-            className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl"
+            className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-4xl"
           >
             Caminhos preparados para a próxima etapa
           </h2>
-          <p className="mt-4 leading-7 text-slate-600">
+          <p className="mt-4 font-sans text-sm leading-relaxed text-[#B8AF9F]">
             Cada área abaixo é uma rota funcional do shell. As informações são ilustrativas e não
             substituem análise, revisão ou orientação profissional.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {areas.map(({ to, label, title, description, icon: Icon }) => (
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          {areas.map(({ to, label, title, description, icon: Icon }, index) => (
             <Link
               key={to}
               to={to}
-              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+              className="group relative rounded-lg border border-[#C9A227]/25 bg-gradient-to-b from-[#141414] to-[#0D0D0D] p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#C9A227]/60 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7),0_0_20px_rgba(201,162,39,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
             >
+              {/* Numeral romano sutil no canto superior */}
+              <span className="absolute top-6 right-6 font-serif text-xs font-semibold tracking-widest text-[#C9A227]/40 group-hover:text-[#C9A227]/80">
+                {['I', 'II', 'III', 'IV'][index]}
+              </span>
+
               <div className="flex items-start justify-between gap-5">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                <div className="flex h-12 w-12 items-center justify-center rounded border border-[#C9A227]/30 bg-gradient-to-br from-[#1E1B13] to-[#111111] text-[#DCBF6F] shadow-[inset_0_1px_1px_rgba(201,162,39,0.25)] transition-colors group-hover:border-[#C9A227] group-hover:text-[#FAF3E8]">
                   <Icon size={22} aria-hidden="true" />
-                </span>
+                </div>
                 <ArrowRight
-                  className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-emerald-700"
-                  size={20}
+                  className="mt-2 text-[#7A7366] transition-all duration-200 group-hover:translate-x-1 group-hover:text-[#DCBF6F]"
+                  size={18}
                   aria-hidden="true"
                 />
               </div>
-              <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
                 {label}
               </p>
-              <h3 className="mt-2 text-xl font-black text-slate-950">{title}</h3>
-              <p className="mt-3 leading-7 text-slate-600">{description}</p>
+              <h3 className="mt-2 font-serif text-xl font-semibold tracking-tight text-[#FAF3E8] group-hover:text-[#DCBF6F]">
+                {title}
+              </h3>
+              <p className="mt-3 font-sans text-xs leading-relaxed text-[#A39985]">{description}</p>
+
+              {/* Linha de acabamento dourada no rodapé do card que se expande no hover */}
+              <div className="mt-6 h-px w-full bg-[#C9A227]/15 transition-colors group-hover:bg-[#C9A227]/40" />
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="bg-slate-900 text-white" aria-labelledby="next-title">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
-          <p className="text-sm font-bold uppercase tracking-[0.16em] text-emerald-300">
-            Próximo passo
-          </p>
-          <h2
-            id="next-title"
-            className="mt-3 max-w-2xl text-3xl font-black tracking-tight sm:text-4xl"
-          >
-            Validar a experiência antes de ampliar o produto.
-          </h2>
-          <p className="mt-4 max-w-2xl leading-7 text-slate-300">
-            O shell não publica conteúdo real, não recebe dados pessoais e não representa um sistema
-            editorial concluído. Ele é a base visual para o próximo ciclo de validação.
-          </p>
+      {/* Banner de Próximo Passo sóbrio e imponente */}
+      <section
+        className="relative border-t border-[#C9A227]/20 bg-[#070707]"
+        aria-labelledby="next-title"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <div className="relative rounded-lg border border-[#C9A227]/25 bg-gradient-to-r from-[#12110D] via-[#161510] to-[#12110D] p-8 sm:p-12">
+            <div className="gold-divider mb-8" />
+
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
+              Próximo passo
+            </p>
+            <h2
+              id="next-title"
+              className="mt-3 max-w-2xl font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-4xl"
+            >
+              Validar a experiência antes de ampliar o produto.
+            </h2>
+            <p className="mt-4 max-w-2xl font-sans text-sm leading-relaxed text-[#B8AF9F]">
+              O shell não publica conteúdo real, não recebe dados pessoais e não representa um
+              sistema editorial concluído. Ele é a base visual para o próximo ciclo de validação.
+            </p>
+          </div>
         </div>
       </section>
     </div>

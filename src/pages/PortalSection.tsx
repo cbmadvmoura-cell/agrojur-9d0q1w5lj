@@ -122,60 +122,83 @@ export default function PortalSection({ section }: { section: SectionKey }) {
   const Icon = content.icon
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 rounded-lg text-sm font-bold text-emerald-800 transition hover:text-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-4"
+        className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#C9A227] transition hover:text-[#FAF3E8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]"
       >
-        <ArrowLeft size={17} aria-hidden="true" /> Voltar ao início
+        <ArrowLeft
+          size={16}
+          className="transition-transform group-hover:-translate-x-1"
+          aria-hidden="true"
+        />
+        <span>Voltar ao início</span>
       </Link>
 
-      <header className="mt-10 max-w-3xl">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800">
+      <header className="mt-8 max-w-3xl">
+        <div className="flex h-12 w-12 items-center justify-center rounded border border-[#C9A227]/40 bg-gradient-to-br from-[#1E1B13] to-[#111111] text-[#DCBF6F] shadow-[inset_0_1px_1px_rgba(201,162,39,0.3)]">
           <Icon size={24} aria-hidden="true" />
         </div>
-        <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-emerald-700">
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
           {content.eyebrow} · preview controlado
         </p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+        <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-5xl">
           {content.title}
         </h1>
-        <p className="mt-5 text-lg leading-8 text-slate-600">{content.intro}</p>
+        <p className="mt-5 font-sans text-base leading-relaxed text-[#B8AF9F]">{content.intro}</p>
       </header>
 
+      {/* Nota Jurídica Nobre */}
       <div
-        className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950"
+        className="mt-8 rounded-lg border border-[#C9A227]/30 bg-[#16140E] p-5 text-xs leading-relaxed text-[#DCBF6F]"
         role="note"
       >
-        <strong className="font-black">Conteúdo demonstrativo:</strong> {content.note}
+        <span className="font-bold uppercase tracking-wider text-[#FAF3E8]">
+          Conteúdo demonstrativo:
+        </span>{' '}
+        {content.note}
       </div>
 
       <section
-        className="mt-10 grid gap-5 md:grid-cols-3"
+        className="mt-10 grid gap-6 md:grid-cols-3"
         aria-label={`Itens demonstrativos de ${content.eyebrow}`}
       >
-        {content.cards.map((card) => (
+        {content.cards.map((card, idx) => (
           <article
             key={card.title}
-            className="flex min-h-56 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+            className="group relative flex min-h-60 flex-col rounded-lg border border-[#C9A227]/25 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm transition-all duration-300 hover:border-[#C9A227]/60 hover:shadow-[0_8px_30px_rgba(0,0,0,0.7),0_0_15px_rgba(201,162,39,0.12)]"
           >
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">
-              {card.status}
-            </span>
-            <h2 className="mt-4 text-xl font-black text-slate-950">{card.title}</h2>
-            <p className="mt-3 flex-1 leading-7 text-slate-600">{card.description}</p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500">
-              Ver estrutura <ArrowRight size={16} aria-hidden="true" />
+            <div className="flex items-center justify-between">
+              <span className="rounded border border-[#C9A227]/30 bg-[#1A1812] px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#DCBF6F]">
+                {card.status}
+              </span>
+              <span className="font-serif text-xs text-[#C9A227]/40">§ 0{idx + 1}</span>
+            </div>
+
+            <h2 className="mt-4 font-serif text-xl font-semibold tracking-tight text-[#FAF3E8] group-hover:text-[#DCBF6F]">
+              {card.title}
+            </h2>
+            <p className="mt-3 flex-1 font-sans text-xs leading-relaxed text-[#A39985]">
+              {card.description}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#C9A227] transition-all group-hover:text-[#FAF3E8]">
+              Ver estrutura{' '}
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </span>
           </article>
         ))}
       </section>
 
-      <div className="mt-12 rounded-2xl bg-slate-900 p-6 text-white sm:p-8">
-        <p className="text-sm font-bold uppercase tracking-[0.16em] text-emerald-300">
+      {/* Limite desta fase */}
+      <div className="mt-12 rounded-lg border border-[#C9A227]/25 bg-gradient-to-r from-[#12110D] via-[#161510] to-[#12110D] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
           Limite desta fase
         </p>
-        <p className="mt-3 max-w-3xl leading-7 text-slate-300">
+        <p className="mt-3 max-w-3xl font-sans text-xs leading-relaxed text-[#B8AF9F]">
           Esta rota existe para validar a jornada pública e a linguagem do shell. Autenticação,
           modelo editorial, revisão, publicação, coleta de dados e integrações serão tratados
           somente em tarefas autorizadas próprias.

@@ -25,10 +25,10 @@ const areas = [
   },
   {
     to: '/calculadora',
-    label: 'Calculadora',
-    title: 'Veja o espaço para ferramentas',
+    label: 'Calculadora Tributária',
+    title: 'Simule a transição 2025–2033 (LC 214/2025)',
     description:
-      'Área reservada para uma futura experiência calculável, ainda sem resultado produtivo.',
+      'Projeção comparativa ano a ano: CBS, IBS, créditos agropecuários e impacto no seu fluxo tributário.',
     icon: Calculator,
   },
 ]

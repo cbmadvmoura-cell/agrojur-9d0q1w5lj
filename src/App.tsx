@@ -7,6 +7,7 @@ import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import PortalSection from './pages/PortalSection'
+import Calculadora from './pages/Calculadora'
 import Login from './pages/Login'
 import Editorial from './pages/Editorial'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -24,7 +25,7 @@ const App = () => (
             <Route path="/temas" element={<PortalSection section="temas" />} />
             <Route path="/blog" element={<PortalSection section="blog" />} />
             <Route path="/diagnostico" element={<PortalSection section="diagnostico" />} />
-            <Route path="/calculadora" element={<PortalSection section="calculadora" />} />
+            <Route path="/calculadora" element={<Calculadora />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route

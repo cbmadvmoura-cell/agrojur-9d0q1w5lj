@@ -14,6 +14,7 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
+  SlidersHorizontal,
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -35,6 +36,7 @@ import {
   formatarBRLCentavos,
   formatarPercentual,
 } from '@/lib/tributario-engine'
+import { ConsultaGuiadaWizard, ConsultaGuiadaValores } from '@/components/ConsultaGuiadaWizard'
 
 const CRONOGRAMA_EVENTOS = [
   {
@@ -88,6 +90,9 @@ export default function CalculadoraTributaria() {
   // Preset inicial
   const presetPadrao = SETORES_PRESETS.soja_graos
 
+  // Modo de uso da Calculadora: "guiada" (entrevista passo a passo) ou "tecnico" (formulário completo com sliders)
+  const [modoUso, setModoUso] = useState<'guiada' | 'tecnico'>('guiada')
+
   // Estado dos Parâmetros
   const [receitaBruta, setReceitaBruta] = useState<number>(30000000) // R$ 30 milhões (porte agro típico)
   const [comprasInsumos, setComprasInsumos] = useState<number>(18000000) // R$ 18 milhões (60%)
@@ -136,6 +141,32 @@ export default function CalculadoraTributaria() {
     // Ajustar insumos proporcionalmente à receita se o usuário ainda não editou radicalmente
     if (receitaBruta > 0) {
       setComprasInsumos(Math.round((receitaBruta * p.baseInsumosPercentual) / 100))
+    }
+  }
+
+  // Callback de conclusão da Consulta Guiada: aplica todos os valores no motor e sincroniza com o formulário técnico
+  const handleAplicarConsultaGuiada = (novos: ConsultaGuiadaValores) => {
+    setSetorKey(novos.setorKey)
+    setReceitaBruta(novos.receitaBruta)
+    setComprasInsumos(novos.comprasInsumos)
+    setRegime(novos.regime)
+    setRedutorCbsIbs(novos.redutorCbsIbs)
+    setTemCreditoPresumidoAgro(novos.temCreditoPresumidoAgro)
+    setAliquotaCreditoPresumido(novos.aliquotaCreditoPresumido)
+    setAproveitamentoCreditoNovo(novos.aproveitamentoCreditoNovo)
+
+    // Alíquotas base do setor
+    const preset = SETORES_PRESETS[novos.setorKey]
+    setAliquotaPis(preset.pisPadrao)
+    setAliquotaCofins(preset.cofinsPadrao)
+    setAliquotaIcms(preset.icmsPadrao)
+    setAliquotaIss(preset.issPadrao)
+    setAliquotaIpi(preset.ipiPadrao)
+
+    // Scroll suave até a seção de resultados para que o advogado e cliente vejam o diagnóstico de imediato
+    const elResultados = document.getElementById('secao-resultados-calculadora')
+    if (elResultados) {
+      elResultados.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
@@ -338,417 +369,589 @@ export default function CalculadoraTributaria() {
         </div>
       </section>
 
+      {/* ÁREA DE CONTROLE DE MODO & ENTRADA DE DADOS */}
+      <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+        {/* SEGMENTED CONTROL ELEGANTE: CONSULTA GUIADA vs FORMULÁRIO TÉCNICO */}
+        <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-[#C9A227]/30 bg-gradient-to-r from-[#17150E] via-[#12110D] to-[#17150E] p-4 sm:flex-row sm:items-center sm:p-5 shadow-lg">
+          <div>
+            <span className="font-serif text-[11px] font-semibold tracking-widest text-[#C9A227] uppercase">
+              Modo de Operação da Calculadora
+            </span>
+            <p className="mt-0.5 text-xs text-[#B8AF9F]">
+              Escolha entre a entrevista passo-a-passo (ideal em atendimento ao cliente) ou o
+              formulário analítico técnico completo.
+            </p>
+          </div>
+
+          <div className="inline-flex rounded-lg border border-[#C9A227]/35 bg-[#0C0C0C] p-1.5 shadow-inner self-stretch sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setModoUso('guiada')}
+              className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ${
+                modoUso === 'guiada'
+                  ? 'border border-[#DCBF6F]/70 bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] text-[#0C0C0C] shadow-[0_2px_12px_rgba(201,162,39,0.35)] font-bold'
+                  : 'text-[#9E9585] hover:text-[#DCBF6F]'
+              }`}
+            >
+              <Sparkles
+                size={14}
+                className={modoUso === 'guiada' ? 'text-[#0C0C0C]' : 'text-[#C9A227]'}
+              />
+              <span>Consulta Guiada</span>
+              <span
+                className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                  modoUso === 'guiada'
+                    ? 'bg-[#0C0C0C]/20 text-[#0C0C0C]'
+                    : 'bg-[#C9A227]/20 text-[#DCBF6F]'
+                }`}
+              >
+                Recomendado
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setModoUso('tecnico')}
+              className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ${
+                modoUso === 'tecnico'
+                  ? 'border border-[#DCBF6F]/70 bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] text-[#0C0C0C] shadow-[0_2px_12px_rgba(201,162,39,0.35)] font-bold'
+                  : 'text-[#9E9585] hover:text-[#DCBF6F]'
+              }`}
+            >
+              <Scale
+                size={14}
+                className={modoUso === 'tecnico' ? 'text-[#0C0C0C]' : 'text-[#C9A227]'}
+              />
+              <span>Formulário Técnico</span>
+            </button>
+          </div>
+        </div>
+
+        {/* RENDERIZAÇÃO DO MODO GUIADO (WIZARD PASSO A PASSO) */}
+        {modoUso === 'guiada' && (
+          <div className="mt-8">
+            <ConsultaGuiadaWizard
+              valoresIniciais={{
+                setorKey,
+                receitaBruta,
+                comprasInsumos,
+                regime,
+                redutorCbsIbs,
+                temCreditoPresumidoAgro,
+                aliquotaCreditoPresumido,
+                aproveitamentoCreditoNovo,
+              }}
+              onAplicarResultados={handleAplicarConsultaGuiada}
+              onAlternarModoTecnico={() => setModoUso('tecnico')}
+            />
+          </div>
+        )}
+      </section>
+
       {/* ÁREA PRINCIPAL: FORMULÁRIO JURÍDICO + RESULTADOS */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section
+        id="secao-resultados-calculadora"
+        className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+      >
         <div className="grid gap-10 lg:grid-cols-12">
-          {/* COLUNA ESQUERDA: PARÂMETROS E FORMULÁRIO (ESTÉTICA DE ARTIGO JURÍDICO I, II, III) */}
-          <div className="space-y-8 lg:col-span-5">
-            {/* Presets de Setor com Ênfase Agro */}
-            <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
-                  Art. 1º · Segmento de Atividade
-                </span>
-                <span className="text-xs text-[#7A7366]">§ Presets Agro</span>
-              </div>
-              <p className="mt-3 text-xs text-[#B8AF9F]">
-                Selecione um segmento para carregar automaticamente o redutor legal de 60% da LC
-                214/2025 e as alíquotas típicas da cadeia produtiva:
-              </p>
-
-              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {(Object.keys(SETORES_PRESETS) as SetorPresetKey[]).map((chave) => {
-                  const s = SETORES_PRESETS[chave]
-                  const ativo = setorKey === chave
-                  return (
-                    <button
-                      key={chave}
-                      type="button"
-                      onClick={() => aplicarPreset(chave)}
-                      className={`text-left rounded border px-3 py-2.5 text-xs transition-all duration-200 ${
-                        ativo
-                          ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#FAF3E8] shadow-[0_0_12px_rgba(201,162,39,0.25)] font-semibold'
-                          : 'border-[#C9A227]/20 bg-[#121212] text-[#9E9585] hover:border-[#C9A227]/50 hover:text-[#DCBF6F]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="truncate">{s.nome}</span>
-                        {s.redutorCbsIbs > 0 && (
-                          <span className="ml-1 text-[10px] text-[#DCBF6F] font-mono">
-                            -{s.redutorCbsIbs}%
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-              <p className="mt-3 text-[11px] italic text-[#7A7366]">
-                {SETORES_PRESETS[setorKey].descricao}
-              </p>
-            </div>
-
-            {/* SEÇÃO I: FATURAMENTO & DESPESAS COM INSUMOS */}
-            <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-              {/* Cantoneira discreta */}
-              <div className="absolute top-1.5 right-1.5 h-2 w-2 border-t border-r border-[#C9A227]/40" />
-
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
-                  Capítulo I · Base Operacional
-                </span>
-                <span className="font-mono text-xs text-[#DCBF6F]">§ 1º a § 3º</span>
-              </div>
-
-              <div className="mt-5 space-y-5">
-                {/* Receita Bruta Anual */}
-                <div>
-                  <div className="flex items-center justify-between text-xs">
-                    <label htmlFor="receita-bruta" className="font-semibold text-[#FAF3E8]">
-                      Receita Bruta Anual de Saídas (R$)
-                    </label>
-                    <span className="font-mono text-[#DCBF6F] font-medium">
-                      {formatarBRL(receitaBruta)}
-                    </span>
-                  </div>
-                  <input
-                    id="receita-bruta"
-                    type="range"
-                    min={1000000}
-                    max={200000000}
-                    step={500000}
-                    value={receitaBruta}
-                    onChange={(e) => {
-                      const val = Number(e.target.value)
-                      setReceitaBruta(val)
-                      // manter proporção do setor caso compras não excedam receita
-                      if (comprasInsumos > val) {
-                        setComprasInsumos(Math.round(val * 0.6))
-                      }
-                    }}
-                    className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
-                  />
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[10px] text-[#7A7366]">R$ 1 milhão</span>
-                    <input
-                      type="number"
-                      aria-label="Digitar receita bruta anual"
-                      value={receitaBruta}
-                      onChange={(e) => setReceitaBruta(Math.max(0, Number(e.target.value)))}
-                      className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
-                    />
-                    <span className="text-[10px] text-[#7A7366]">R$ 200 milhões</span>
-                  </div>
-                </div>
-
-                {/* Compras de Insumos / Base de Créditos */}
-                <div>
-                  <div className="flex items-center justify-between text-xs">
-                    <label htmlFor="compras-insumos" className="font-semibold text-[#FAF3E8]">
-                      Compras &amp; Insumos Anuais (Base de Crédito R$)
-                    </label>
-                    <span className="font-mono text-[#DCBF6F] font-medium">
-                      {formatarBRL(comprasInsumos)}
-                      <span className="text-[10px] text-[#9E9585] ml-1">
-                        ({receitaBruta > 0 ? ((comprasInsumos / receitaBruta) * 100).toFixed(0) : 0}
-                        %)
-                      </span>
-                    </span>
-                  </div>
-                  <input
-                    id="compras-insumos"
-                    type="range"
-                    min={0}
-                    max={receitaBruta}
-                    step={250000}
-                    value={comprasInsumos}
-                    onChange={(e) => setComprasInsumos(Number(e.target.value))}
-                    className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
-                  />
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[10px] text-[#7A7366]">R$ 0</span>
-                    <input
-                      type="number"
-                      aria-label="Digitar compras e insumos anuais"
-                      value={comprasInsumos}
-                      onChange={(e) => setComprasInsumos(Math.max(0, Number(e.target.value)))}
-                      className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
-                    />
-                    <span className="text-[10px] text-[#7A7366]">100% da receita</span>
-                  </div>
-                  <p className="mt-1 text-[11px] text-[#7A7366]">
-                    * Insumos com incidência de IVA geram créditos integrais no novo sistema
-                    (não-cumulatividade plena).
-                  </p>
-                </div>
-
-                {/* Regime Tributário Atual */}
-                <div>
-                  <span className="block text-xs font-semibold text-[#FAF3E8]">
-                    Regime Tributário Atual Vigente
+          {/* COLUNA ESQUERDA: VISÍVEL SOMENTE NO MODO TÉCNICO, OU COM BOTÃO DE ACESSO */}
+          {modoUso === 'tecnico' ? (
+            <div className="space-y-8 lg:col-span-5">
+              {/* Presets de Setor com Ênfase Agro */}
+              <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                    Art. 1º · Segmento de Atividade
                   </span>
-                  <div className="mt-2 grid grid-cols-3 gap-2">
-                    {[
-                      { id: 'lucro_real', label: 'Lucro Real', sub: 'Não-cumulativo' },
-                      { id: 'lucro_presumido', label: 'Presumido', sub: 'Cumulativo' },
-                      { id: 'simples_nacional', label: 'Simples', sub: 'DAS Unificado' },
-                    ].map((item) => (
+                  <span className="text-xs text-[#7A7366]">§ Presets Agro</span>
+                </div>
+                <p className="mt-3 text-xs text-[#B8AF9F]">
+                  Selecione um segmento para carregar automaticamente o redutor legal de 60% da LC
+                  214/2025 e as alíquotas típicas da cadeia produtiva:
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {(Object.keys(SETORES_PRESETS) as SetorPresetKey[]).map((chave) => {
+                    const s = SETORES_PRESETS[chave]
+                    const ativo = setorKey === chave
+                    return (
                       <button
-                        key={item.id}
+                        key={chave}
                         type="button"
-                        onClick={() => setRegime(item.id as RegimeTributario)}
-                        className={`rounded border p-2 text-center text-xs transition-all ${
-                          regime === item.id
-                            ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_10px_rgba(201,162,39,0.2)]'
-                            : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
+                        onClick={() => aplicarPreset(chave)}
+                        className={`text-left rounded border px-3 py-2.5 text-xs transition-all duration-200 ${
+                          ativo
+                            ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#FAF3E8] shadow-[0_0_12px_rgba(201,162,39,0.25)] font-semibold'
+                            : 'border-[#C9A227]/20 bg-[#121212] text-[#9E9585] hover:border-[#C9A227]/50 hover:text-[#DCBF6F]'
                         }`}
                       >
-                        <span className="block">{item.label}</span>
-                        <span className="block text-[9px] text-[#7A7366] font-normal">
-                          {item.sub}
-                        </span>
+                        <div className="flex items-center justify-between">
+                          <span className="truncate">{s.nome}</span>
+                          {s.redutorCbsIbs > 0 && (
+                            <span className="ml-1 text-[10px] text-[#DCBF6F] font-mono">
+                              -{s.redutorCbsIbs}%
+                            </span>
+                          )}
+                        </div>
                       </button>
-                    ))}
-                  </div>
+                    )
+                  })}
                 </div>
-              </div>
-            </div>
-
-            {/* SEÇÃO II: PARÂMETROS DA REFORMA TRIBUTÁRIA (LC 214/2025) */}
-            <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
-                  Capítulo II · Parâmetros da LC 214/2025
-                </span>
-                <span className="font-mono text-xs text-[#DCBF6F]">§ 4º e seguintes</span>
+                <p className="mt-3 text-[11px] italic text-[#7A7366]">
+                  {SETORES_PRESETS[setorKey].descricao}
+                </p>
               </div>
 
-              <div className="mt-5 space-y-4">
-                {/* Redutor Setorial CBS/IBS */}
-                <div>
-                  <label
-                    htmlFor="redutor-cbs-ibs"
-                    className="block text-xs font-semibold text-[#FAF3E8]"
-                  >
-                    Redutor de Alíquota Setorial CBS &amp; IBS
-                  </label>
-                  <div className="mt-2 grid grid-cols-4 gap-2">
-                    {[
-                      { valor: 0, label: '0% (Geral)' },
-                      { valor: 30, label: '30% (Interm.)' },
-                      { valor: 60, label: '60% (Agro/LC 214)' },
-                      { valor: 100, label: '100% (Isento)' },
-                    ].map((item) => (
-                      <button
-                        key={item.valor}
-                        type="button"
-                        onClick={() => setRedutorCbsIbs(item.valor)}
-                        className={`rounded border py-2 px-1 text-center text-xs transition-all ${
-                          redutorCbsIbs === item.valor
-                            ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_8px_rgba(201,162,39,0.2)]'
-                            : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="mt-1.5 text-[11px] text-[#7A7366]">
-                    A LC 214/2025 prevê desconto de 60% para produtos agropecuários in natura,
-                    sementes e insumos essenciais.
-                  </p>
+              {/* SEÇÃO I: FATURAMENTO & DESPESAS COM INSUMOS */}
+              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
+                {/* Cantoneira discreta */}
+                <div className="absolute top-1.5 right-1.5 h-2 w-2 border-t border-r border-[#C9A227]/40" />
+
+                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                    Capítulo I · Base Operacional
+                  </span>
+                  <span className="font-mono text-xs text-[#DCBF6F]">§ 1º a § 3º</span>
                 </div>
 
-                {/* Crédito Presumido do Produtor Rural */}
-                <div className="rounded border border-[#C9A227]/20 bg-[#101010] p-3.5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="block text-xs font-semibold text-[#FAF3E8]">
-                        Crédito Presumido Agropecuário
-                      </span>
-                      <span className="block text-[10px] text-[#9E9585]">
-                        Aquisição de produtor rural pessoa física não contribuinte
+                <div className="mt-5 space-y-5">
+                  {/* Receita Bruta Anual */}
+                  <div>
+                    <div className="flex items-center justify-between text-xs">
+                      <label htmlFor="receita-bruta" className="font-semibold text-[#FAF3E8]">
+                        Receita Bruta Anual de Saídas (R$)
+                      </label>
+                      <span className="font-mono text-[#DCBF6F] font-medium">
+                        {formatarBRL(receitaBruta)}
                       </span>
                     </div>
-                    <label className="relative inline-flex cursor-pointer items-center">
+                    <input
+                      id="receita-bruta"
+                      type="range"
+                      min={1000000}
+                      max={200000000}
+                      step={500000}
+                      value={receitaBruta}
+                      onChange={(e) => {
+                        const val = Number(e.target.value)
+                        setReceitaBruta(val)
+                        // manter proporção do setor caso compras não excedam receita
+                        if (comprasInsumos > val) {
+                          setComprasInsumos(Math.round(val * 0.6))
+                        }
+                      }}
+                      className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                    />
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-[10px] text-[#7A7366]">R$ 1 milhão</span>
                       <input
-                        type="checkbox"
-                        checked={temCreditoPresumidoAgro}
-                        onChange={(e) => setTemCreditoPresumidoAgro(e.target.checked)}
-                        className="peer sr-only"
+                        type="number"
+                        aria-label="Digitar receita bruta anual"
+                        value={receitaBruta}
+                        onChange={(e) => setReceitaBruta(Math.max(0, Number(e.target.value)))}
+                        className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
                       />
-                      <div className="h-5 w-9 rounded-full bg-[#252525] after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 rounded-full after:bg-[#8E8779] after:transition-all peer-checked:bg-[#C9A227] peer-checked:after:translate-x-full peer-checked:after:bg-[#0A0A0A]" />
-                    </label>
+                      <span className="text-[10px] text-[#7A7366]">R$ 200 milhões</span>
+                    </div>
                   </div>
-                  {temCreditoPresumidoAgro && (
-                    <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2.5">
-                      <label
-                        htmlFor="aliq-credito-presumido"
-                        className="text-[11px] text-[#C4BBAE]"
-                      >
-                        Alíquota de Crédito Presumido:
+
+                  {/* Compras de Insumos / Base de Créditos */}
+                  <div>
+                    <div className="flex items-center justify-between text-xs">
+                      <label htmlFor="compras-insumos" className="font-semibold text-[#FAF3E8]">
+                        Compras &amp; Insumos Anuais (Base de Crédito R$)
                       </label>
-                      <div className="flex items-center gap-1">
+                      <span className="font-mono text-[#DCBF6F] font-medium">
+                        {formatarBRL(comprasInsumos)}
+                        <span className="text-[10px] text-[#9E9585] ml-1">
+                          (
+                          {receitaBruta > 0
+                            ? ((comprasInsumos / receitaBruta) * 100).toFixed(0)
+                            : 0}
+                          %)
+                        </span>
+                      </span>
+                    </div>
+                    <input
+                      id="compras-insumos"
+                      type="range"
+                      min={0}
+                      max={receitaBruta}
+                      step={250000}
+                      value={comprasInsumos}
+                      onChange={(e) => setComprasInsumos(Number(e.target.value))}
+                      className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                    />
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-[10px] text-[#7A7366]">R$ 0</span>
+                      <input
+                        type="number"
+                        aria-label="Digitar compras e insumos anuais"
+                        value={comprasInsumos}
+                        onChange={(e) => setComprasInsumos(Math.max(0, Number(e.target.value)))}
+                        className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
+                      />
+                      <span className="text-[10px] text-[#7A7366]">100% da receita</span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-[#7A7366]">
+                      * Insumos com incidência de IVA geram créditos integrais no novo sistema
+                      (não-cumulatividade plena).
+                    </p>
+                  </div>
+
+                  {/* Regime Tributário Atual */}
+                  <div>
+                    <span className="block text-xs font-semibold text-[#FAF3E8]">
+                      Regime Tributário Atual Vigente
+                    </span>
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'lucro_real', label: 'Lucro Real', sub: 'Não-cumulativo' },
+                        { id: 'lucro_presumido', label: 'Presumido', sub: 'Cumulativo' },
+                        { id: 'simples_nacional', label: 'Simples', sub: 'DAS Unificado' },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setRegime(item.id as RegimeTributario)}
+                          className={`rounded border p-2 text-center text-xs transition-all ${
+                            regime === item.id
+                              ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_10px_rgba(201,162,39,0.2)]'
+                              : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
+                          }`}
+                        >
+                          <span className="block">{item.label}</span>
+                          <span className="block text-[9px] text-[#7A7366] font-normal">
+                            {item.sub}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SEÇÃO II: PARÂMETROS DA REFORMA TRIBUTÁRIA (LC 214/2025) */}
+              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                    Capítulo II · Parâmetros da LC 214/2025
+                  </span>
+                  <span className="font-mono text-xs text-[#DCBF6F]">§ 4º e seguintes</span>
+                </div>
+
+                <div className="mt-5 space-y-4">
+                  {/* Redutor Setorial CBS/IBS */}
+                  <div>
+                    <label
+                      htmlFor="redutor-cbs-ibs"
+                      className="block text-xs font-semibold text-[#FAF3E8]"
+                    >
+                      Redutor de Alíquota Setorial CBS &amp; IBS
+                    </label>
+                    <div className="mt-2 grid grid-cols-4 gap-2">
+                      {[
+                        { valor: 0, label: '0% (Geral)' },
+                        { valor: 30, label: '30% (Interm.)' },
+                        { valor: 60, label: '60% (Agro/LC 214)' },
+                        { valor: 100, label: '100% (Isento)' },
+                      ].map((item) => (
+                        <button
+                          key={item.valor}
+                          type="button"
+                          onClick={() => setRedutorCbsIbs(item.valor)}
+                          className={`rounded border py-2 px-1 text-center text-xs transition-all ${
+                            redutorCbsIbs === item.valor
+                              ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_8px_rgba(201,162,39,0.2)]'
+                              : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-1.5 text-[11px] text-[#7A7366]">
+                      A LC 214/2025 prevê desconto de 60% para produtos agropecuários in natura,
+                      sementes e insumos essenciais.
+                    </p>
+                  </div>
+
+                  {/* Crédito Presumido do Produtor Rural */}
+                  <div className="rounded border border-[#C9A227]/20 bg-[#101010] p-3.5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="block text-xs font-semibold text-[#FAF3E8]">
+                          Crédito Presumido Agropecuário
+                        </span>
+                        <span className="block text-[10px] text-[#9E9585]">
+                          Aquisição de produtor rural pessoa física não contribuinte
+                        </span>
+                      </div>
+                      <label className="relative inline-flex cursor-pointer items-center">
                         <input
-                          id="aliq-credito-presumido"
-                          type="number"
-                          step={0.5}
-                          min={0}
-                          max={15}
-                          value={aliquotaCreditoPresumido}
-                          onChange={(e) => setAliquotaCreditoPresumido(Number(e.target.value))}
-                          className="w-16 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-0.5 text-right font-mono text-xs text-[#FAF3E8]"
+                          type="checkbox"
+                          checked={temCreditoPresumidoAgro}
+                          onChange={(e) => setTemCreditoPresumidoAgro(e.target.checked)}
+                          className="peer sr-only"
                         />
-                        <span className="text-xs text-[#DCBF6F]">%</span>
+                        <div className="h-5 w-9 rounded-full bg-[#252525] after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 rounded-full after:bg-[#8E8779] after:transition-all peer-checked:bg-[#C9A227] peer-checked:after:translate-x-full peer-checked:after:bg-[#0A0A0A]" />
+                      </label>
+                    </div>
+                    {temCreditoPresumidoAgro && (
+                      <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2.5">
+                        <label
+                          htmlFor="aliq-credito-presumido"
+                          className="text-[11px] text-[#C4BBAE]"
+                        >
+                          Alíquota de Crédito Presumido:
+                        </label>
+                        <div className="flex items-center gap-1">
+                          <input
+                            id="aliq-credito-presumido"
+                            type="number"
+                            step={0.5}
+                            min={0}
+                            max={15}
+                            value={aliquotaCreditoPresumido}
+                            onChange={(e) => setAliquotaCreditoPresumido(Number(e.target.value))}
+                            className="w-16 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-0.5 text-right font-mono text-xs text-[#FAF3E8]"
+                          />
+                          <span className="text-xs text-[#DCBF6F]">%</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botão de Toggle para Parâmetros Avançados */}
+                  <button
+                    type="button"
+                    onClick={() => setMostrarParametrosAvancados(!mostrarParametrosAvancados)}
+                    className="flex w-full items-center justify-between rounded border border-[#C9A227]/25 bg-[#121212] px-3.5 py-2.5 text-xs font-semibold text-[#DCBF6F] hover:bg-[#181611] transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Sparkles size={14} />
+                      <span>Ajustar Alíquotas Individuais de Referência</span>
+                    </span>
+                    {mostrarParametrosAvancados ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </button>
+
+                  {mostrarParametrosAvancados && (
+                    <div className="space-y-3.5 rounded border border-[#C9A227]/25 bg-[#0C0C0C] p-4 text-xs animate-fade-in">
+                      <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
+                        Alíquotas de Referência Governamentais
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="cbs-ref" className="text-[11px] text-[#A39985]">
+                            CBS Federal de Ref. (%)
+                          </label>
+                          <input
+                            id="cbs-ref"
+                            type="number"
+                            step={0.01}
+                            value={aliquotaCbsRef}
+                            onChange={(e) => setAliquotaCbsRef(Number(e.target.value))}
+                            className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="ibs-ref" className="text-[11px] text-[#A39985]">
+                            IBS Subnacional de Ref. (%)
+                          </label>
+                          <input
+                            id="ibs-ref"
+                            type="number"
+                            step={0.01}
+                            value={aliquotaIbsRef}
+                            onChange={(e) => setAliquotaIbsRef(Number(e.target.value))}
+                            className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="border-t border-[#222] pt-3">
+                        <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
+                          Alíquotas do Sistema Atual em Edição
+                        </p>
+                        {regime === 'simples_nacional' ? (
+                          <div className="mt-2">
+                            <label htmlFor="das-efetivo" className="text-[11px] text-[#A39985]">
+                              Alíquota Efetiva do DAS (%)
+                            </label>
+                            <input
+                              id="das-efetivo"
+                              type="number"
+                              step={0.1}
+                              value={aliquotaDas}
+                              onChange={(e) => setAliquotaDas(Number(e.target.value))}
+                              className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                            />
+                          </div>
+                        ) : (
+                          <div className="mt-2 grid grid-cols-3 gap-2">
+                            <div>
+                              <label htmlFor="aliq-pis" className="text-[10px] text-[#A39985]">
+                                PIS (%)
+                              </label>
+                              <input
+                                id="aliq-pis"
+                                type="number"
+                                step={0.05}
+                                value={aliquotaPis}
+                                onChange={(e) => setAliquotaPis(Number(e.target.value))}
+                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="aliq-cofins" className="text-[10px] text-[#A39985]">
+                                COFINS (%)
+                              </label>
+                              <input
+                                id="aliq-cofins"
+                                type="number"
+                                step={0.1}
+                                value={aliquotaCofins}
+                                onChange={(e) => setAliquotaCofins(Number(e.target.value))}
+                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="aliq-icms" className="text-[10px] text-[#A39985]">
+                                ICMS (%)
+                              </label>
+                              <input
+                                id="aliq-icms"
+                                type="number"
+                                step={0.5}
+                                value={aliquotaIcms}
+                                onChange={(e) => setAliquotaIcms(Number(e.target.value))}
+                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="border-t border-[#222] pt-3">
+                        <div className="flex items-center justify-between">
+                          <label htmlFor="aprov-cred-novo" className="text-[11px] text-[#A39985]">
+                            Aproveitamento de Créditos na Entrada (%)
+                          </label>
+                          <span className="font-mono text-xs text-[#DCBF6F]">
+                            {aproveitamentoCreditoNovo}%
+                          </span>
+                        </div>
+                        <input
+                          id="aprov-cred-novo"
+                          type="range"
+                          min={50}
+                          max={100}
+                          value={aproveitamentoCreditoNovo}
+                          onChange={(e) => setAproveitamentoCreditoNovo(Number(e.target.value))}
+                          className="mt-1.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                        />
                       </div>
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Botão de Toggle para Parâmetros Avançados */}
-                <button
-                  type="button"
-                  onClick={() => setMostrarParametrosAvancados(!mostrarParametrosAvancados)}
-                  className="flex w-full items-center justify-between rounded border border-[#C9A227]/25 bg-[#121212] px-3.5 py-2.5 text-xs font-semibold text-[#DCBF6F] hover:bg-[#181611] transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <Sparkles size={14} />
-                    <span>Ajustar Alíquotas Individuais de Referência</span>
-                  </span>
-                  {mostrarParametrosAvancados ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </button>
-
-                {mostrarParametrosAvancados && (
-                  <div className="space-y-3.5 rounded border border-[#C9A227]/25 bg-[#0C0C0C] p-4 text-xs animate-fade-in">
-                    <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
-                      Alíquotas de Referência Governamentais
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label htmlFor="cbs-ref" className="text-[11px] text-[#A39985]">
-                          CBS Federal de Ref. (%)
-                        </label>
-                        <input
-                          id="cbs-ref"
-                          type="number"
-                          step={0.01}
-                          value={aliquotaCbsRef}
-                          onChange={(e) => setAliquotaCbsRef(Number(e.target.value))}
-                          className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="ibs-ref" className="text-[11px] text-[#A39985]">
-                          IBS Subnacional de Ref. (%)
-                        </label>
-                        <input
-                          id="ibs-ref"
-                          type="number"
-                          step={0.01}
-                          value={aliquotaIbsRef}
-                          onChange={(e) => setAliquotaIbsRef(Number(e.target.value))}
-                          className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="border-t border-[#222] pt-3">
-                      <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
-                        Alíquotas do Sistema Atual em Edição
-                      </p>
-                      {regime === 'simples_nacional' ? (
-                        <div className="mt-2">
-                          <label htmlFor="das-efetivo" className="text-[11px] text-[#A39985]">
-                            Alíquota Efetiva do DAS (%)
-                          </label>
-                          <input
-                            id="das-efetivo"
-                            type="number"
-                            step={0.1}
-                            value={aliquotaDas}
-                            onChange={(e) => setAliquotaDas(Number(e.target.value))}
-                            className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                          />
-                        </div>
-                      ) : (
-                        <div className="mt-2 grid grid-cols-3 gap-2">
-                          <div>
-                            <label htmlFor="aliq-pis" className="text-[10px] text-[#A39985]">
-                              PIS (%)
-                            </label>
-                            <input
-                              id="aliq-pis"
-                              type="number"
-                              step={0.05}
-                              value={aliquotaPis}
-                              onChange={(e) => setAliquotaPis(Number(e.target.value))}
-                              className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor="aliq-cofins" className="text-[10px] text-[#A39985]">
-                              COFINS (%)
-                            </label>
-                            <input
-                              id="aliq-cofins"
-                              type="number"
-                              step={0.1}
-                              value={aliquotaCofins}
-                              onChange={(e) => setAliquotaCofins(Number(e.target.value))}
-                              className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                            />
-                          </div>
-                          <div>
-                            <label htmlFor="aliq-icms" className="text-[10px] text-[#A39985]">
-                              ICMS (%)
-                            </label>
-                            <input
-                              id="aliq-icms"
-                              type="number"
-                              step={0.5}
-                              value={aliquotaIcms}
-                              onChange={(e) => setAliquotaIcms(Number(e.target.value))}
-                              className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="border-t border-[#222] pt-3">
-                      <div className="flex items-center justify-between">
-                        <label htmlFor="aprov-cred-novo" className="text-[11px] text-[#A39985]">
-                          Aproveitamento de Créditos na Entrada (%)
-                        </label>
-                        <span className="font-mono text-xs text-[#DCBF6F]">
-                          {aproveitamentoCreditoNovo}%
-                        </span>
-                      </div>
-                      <input
-                        id="aprov-cred-novo"
-                        type="range"
-                        min={50}
-                        max={100}
-                        value={aproveitamentoCreditoNovo}
-                        onChange={(e) => setAproveitamentoCreditoNovo(Number(e.target.value))}
-                        className="mt-1.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
-                      />
-                    </div>
-                  </div>
-                )}
+              {/* AVISO INSTITUCIONAL RÁPIDO */}
+              <div className="rounded border border-[#C9A227]/20 bg-[#12110D] p-4 text-xs leading-relaxed text-[#A39985]">
+                <span className="font-semibold text-[#DCBF6F]">§ Nota de Conformidade:</span> Os
+                cálculos adotam os marcos legais vigentes da LC 214/2025. Alíquotas de referência
+                oficiais estimadas em 9,21% para CBS e 18,70% para IBS pelo Ministério da Fazenda.
               </div>
             </div>
+          ) : (
+            /* No Modo Consulta Guiada: Coluna lateral informativa resumida do cliente */
+            <div className="space-y-6 lg:col-span-4">
+              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                    Parâmetros em Vigor
+                  </span>
+                  <span className="text-xs text-[#DCBF6F] font-mono">§ Consulta Ativa</span>
+                </div>
 
-            {/* AVISO INSTITUCIONAL RÁPIDO */}
-            <div className="rounded border border-[#C9A227]/20 bg-[#12110D] p-4 text-xs leading-relaxed text-[#A39985]">
-              <span className="font-semibold text-[#DCBF6F]">§ Nota de Conformidade:</span> Os
-              cálculos adotam os marcos legais vigentes da LC 214/2025. Alíquotas de referência
-              oficiais estimadas em 9,21% para CBS e 18,70% para IBS pelo Ministério da Fazenda.
+                <div className="mt-4 space-y-3.5 text-xs">
+                  <div>
+                    <span className="text-[11px] text-[#8E8779]">Atividade Agro:</span>
+                    <p className="font-semibold text-[#FAF3E8] mt-0.5">
+                      {SETORES_PRESETS[setorKey].nome}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 border-t border-[#222] pt-2.5">
+                    <div>
+                      <span className="text-[11px] text-[#8E8779]">Receita Anual:</span>
+                      <p className="font-mono font-bold text-[#DCBF6F] mt-0.5">
+                        {formatarBRL(receitaBruta)}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-[#8E8779]">Compras / Insumos:</span>
+                      <p className="font-mono text-[#FAF3E8] mt-0.5">
+                        {formatarBRL(comprasInsumos)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 border-t border-[#222] pt-2.5">
+                    <div>
+                      <span className="text-[11px] text-[#8E8779]">Regime Atual:</span>
+                      <p className="font-medium text-[#FAF3E8] mt-0.5">
+                        {regime === 'lucro_real'
+                          ? 'Lucro Real'
+                          : regime === 'lucro_presumido'
+                            ? 'Lucro Presumido'
+                            : 'Simples Nacional'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-[#8E8779]">Redutor LC 214:</span>
+                      <p className="font-mono text-[#DCBF6F] mt-0.5">
+                        {redutorCbsIbs}% de desconto
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#222] pt-2.5">
+                    <span className="text-[11px] text-[#8E8779]">Crédito Presumido Rural:</span>
+                    <p className="font-medium text-[#FAF3E8] mt-0.5">
+                      {temCreditoPresumidoAgro
+                        ? `Ativo (${aliquotaCreditoPresumido}% sobre insumos)`
+                        : 'Não aplicável'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setModoUso('tecnico')}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded border border-[#C9A227]/40 bg-[#17150E] py-2 text-xs font-semibold text-[#DCBF6F] hover:bg-[#221D12] hover:text-[#FAF3E8] transition-colors"
+                >
+                  <SlidersHorizontal size={13} />
+                  <span>Editar no Formulário Técnico</span>
+                </button>
+              </div>
+
+              {/* Box de apoio ao advogado no atendimento */}
+              <div className="rounded border border-[#C9A227]/20 bg-[#100F0B] p-4 text-xs leading-relaxed text-[#A39985]">
+                <strong className="text-[#DCBF6F] block mb-1">§ Roteiro de Atendimento:</strong>
+                Apresente ao cliente os cards comparativos ao lado e o gráfico da trajetória até
+                2033. Mostre como a concessão do redutor de 60% e os créditos integrais de insumos
+                impactam a carga final da operação.
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* COLUNA DIREITA: RESULTADOS VISUAIS, GRÁFICOS E COMPARATIVOS (7 COLUNAS) */}
-          <div className="space-y-8 lg:col-span-7">
+          {/* COLUNA DIREITA: RESULTADOS VISUAIS, GRÁFICOS E COMPARATIVOS (7 COLUNAS NO TÉCNICO, 8 NO GUIADO) */}
+          <div className={`space-y-8 ${modoUso === 'tecnico' ? 'lg:col-span-7' : 'lg:col-span-8'}`}>
             {/* CARDS-RESUMO ESTILO PLACA JURÍDICA */}
             <div className="grid gap-4 sm:grid-cols-3">
               {/* Card 1: Sistema Atual */}

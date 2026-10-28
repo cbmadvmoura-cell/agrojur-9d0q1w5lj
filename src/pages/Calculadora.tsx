@@ -5,10 +5,8 @@ import {
   ArrowRight,
   TrendingDown,
   TrendingUp,
-  Percent,
   Calendar,
   Sparkles,
-  RefreshCw,
   PhoneCall,
   Scale,
   Award,
@@ -33,8 +31,6 @@ import {
   ParametrosCalculadora,
   calcularTransicaoTributaria,
   formatarBRL,
-  formatarBRLCentavos,
-  formatarPercentual,
 } from '@/lib/tributario-engine'
 import { ConsultaGuiadaWizard, ConsultaGuiadaValores } from '@/components/ConsultaGuiadaWizard'
 
@@ -46,7 +42,7 @@ const CRONOGRAMA_EVENTOS = [
     resumo:
       'PIS (1,65%), COFINS (7,60%), ICMS estadual, ISS municipal e IPI vigentes em sua totalidade. Planejamento tributário pré-reforma.',
     tag: 'Baseline',
-    cor: 'border-[#C9A227]/40',
+    cor: 'border-[#1E4331]/30',
   },
   {
     ano: '2026',
@@ -55,7 +51,7 @@ const CRONOGRAMA_EVENTOS = [
     resumo:
       'Cobrança-teste de CBS a 0,90% e IBS a 0,10%. O recolhimento é 100% compensável com o PIS/COFINS devido no período, sem ônus financeiro real aos contribuintes com obrigações regulares.',
     tag: 'CBS 0,9% · IBS 0,1%',
-    cor: 'border-[#DCBF6F]',
+    cor: 'border-[#784D34]/40',
   },
   {
     ano: '2027–2028',
@@ -64,7 +60,7 @@ const CRONOGRAMA_EVENTOS = [
     resumo:
       'Extinção de PIS e COFINS; IPI zerado (ressalvada ZFM); CBS entra com alíquota cheia (~9,21%). IBS permanece a 0,10%. Imposto Seletivo entra em vigor. ICMS e ISS continuam plenos.',
     tag: 'CBS Plena · PIS/COFINS Extintos',
-    cor: 'border-[#C9A227]',
+    cor: 'border-[#1E4331]/50',
   },
   {
     ano: '2029–2032',
@@ -73,7 +69,7 @@ const CRONOGRAMA_EVENTOS = [
     resumo:
       'Gradual substituição dos tributos estaduais e municipais: 2029 (IBS 10%, ICMS/ISS 90%), 2030 (IBS 20%, ICMS/ISS 80%), 2031 (IBS 30%, ICMS/ISS 70%), 2032 (IBS 40%, ICMS/ISS 60%).',
     tag: 'Escalonamento Subnacional',
-    cor: 'border-[#DCBF6F]/70',
+    cor: 'border-[#784D34]/50',
   },
   {
     ano: '2033',
@@ -82,33 +78,28 @@ const CRONOGRAMA_EVENTOS = [
     resumo:
       'Extinção total do ICMS e do ISS. Modelo dual pleno: CBS da União + IBS dos Estados e Municípios operando em sistema digital de split payment e não-cumulatividade irrestrita.',
     tag: 'IVA Dual Definitivo',
-    cor: 'border-[#E7D397]',
+    cor: 'border-[#1E4331]',
   },
 ]
 
 export default function CalculadoraTributaria() {
-  // Preset inicial
   const presetPadrao = SETORES_PRESETS.soja_graos
 
-  // Modo de uso da Calculadora: "guiada" (entrevista passo a passo) ou "tecnico" (formulário completo com sliders)
   const [modoUso, setModoUso] = useState<'guiada' | 'tecnico'>('guiada')
 
-  // Estado dos Parâmetros
-  const [receitaBruta, setReceitaBruta] = useState<number>(30000000) // R$ 30 milhões (porte agro típico)
-  const [comprasInsumos, setComprasInsumos] = useState<number>(18000000) // R$ 18 milhões (60%)
+  const [receitaBruta, setReceitaBruta] = useState<number>(30000000)
+  const [comprasInsumos, setComprasInsumos] = useState<number>(18000000)
   const [regime, setRegime] = useState<RegimeTributario>('lucro_real')
   const [setorKey, setSetorKey] = useState<SetorPresetKey>('soja_graos')
 
-  // Alíquotas atuais
   const [aliquotaPis, setAliquotaPis] = useState<number>(presetPadrao.pisPadrao)
   const [aliquotaCofins, setAliquotaCofins] = useState<number>(presetPadrao.cofinsPadrao)
   const [aliquotaIcms, setAliquotaIcms] = useState<number>(presetPadrao.icmsPadrao)
   const [aliquotaIss, setAliquotaIss] = useState<number>(presetPadrao.issPadrao)
   const [aliquotaIpi, setAliquotaIpi] = useState<number>(presetPadrao.ipiPadrao)
   const [aliquotaDas, setAliquotaDas] = useState<number>(11.5)
-  const [aproveitamentoCreditoAtual, setAproveitamentoCreditoAtual] = useState<number>(85)
+  const [aproveitamentoCreditoAtual] = useState<number>(85)
 
-  // Reforma Tributária (LC 214/2025)
   const [aliquotaCbsRef, setAliquotaCbsRef] = useState<number>(9.21)
   const [aliquotaIbsRef, setAliquotaIbsRef] = useState<number>(18.7)
   const [redutorCbsIbs, setRedutorCbsIbs] = useState<number>(presetPadrao.redutorCbsIbs)
@@ -119,13 +110,11 @@ export default function CalculadoraTributaria() {
   const [aliquotaCreditoPresumido, setAliquotaCreditoPresumido] = useState<number>(
     presetPadrao.percentualCreditoPresumido,
   )
-  const [impostoSeletivoAliquota, setImpostoSeletivoAliquota] = useState<number>(0)
+  const [impostoSeletivoAliquota] = useState<number>(0)
 
-  // Toggle do modo avançado de edição de alíquotas
   const [mostrarParametrosAvancados, setMostrarParametrosAvancados] = useState<boolean>(false)
   const [anoDetalhado, setAnoDetalhado] = useState<number>(2033)
 
-  // Aplicação do preset de setor
   const aplicarPreset = (chave: SetorPresetKey) => {
     setSetorKey(chave)
     const p = SETORES_PRESETS[chave]
@@ -138,13 +127,11 @@ export default function CalculadoraTributaria() {
     setAliquotaIss(p.issPadrao)
     setAliquotaIpi(p.ipiPadrao)
     setAproveitamentoCreditoNovo(p.aproveitamentoCreditoPadrao)
-    // Ajustar insumos proporcionalmente à receita se o usuário ainda não editou radicalmente
     if (receitaBruta > 0) {
       setComprasInsumos(Math.round((receitaBruta * p.baseInsumosPercentual) / 100))
     }
   }
 
-  // Callback de conclusão da Consulta Guiada: aplica todos os valores no motor e sincroniza com o formulário técnico
   const handleAplicarConsultaGuiada = (novos: ConsultaGuiadaValores) => {
     setSetorKey(novos.setorKey)
     setReceitaBruta(novos.receitaBruta)
@@ -155,7 +142,6 @@ export default function CalculadoraTributaria() {
     setAliquotaCreditoPresumido(novos.aliquotaCreditoPresumido)
     setAproveitamentoCreditoNovo(novos.aproveitamentoCreditoNovo)
 
-    // Alíquotas base do setor
     const preset = SETORES_PRESETS[novos.setorKey]
     setAliquotaPis(preset.pisPadrao)
     setAliquotaCofins(preset.cofinsPadrao)
@@ -163,14 +149,12 @@ export default function CalculadoraTributaria() {
     setAliquotaIss(preset.issPadrao)
     setAliquotaIpi(preset.ipiPadrao)
 
-    // Scroll suave até a seção de resultados para que o advogado e cliente vejam o diagnóstico de imediato
     const elResultados = document.getElementById('secao-resultados-calculadora')
     if (elResultados) {
       elResultados.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
-  // Objeto de parâmetros completo
   const params: ParametrosCalculadora = useMemo(
     () => ({
       receitaBrutaAnual: receitaBruta,
@@ -214,10 +198,8 @@ export default function CalculadoraTributaria() {
     ],
   )
 
-  // Execução do cálculo
   const resultado = useMemo(() => calcularTransicaoTributaria(params), [params])
 
-  // Dados para o gráfico Recharts
   const dadosGrafico = useMemo(() => {
     return resultado.projecoes.map((p) => ({
       ano: `${p.ano}`,
@@ -237,27 +219,16 @@ export default function CalculadoraTributaria() {
   }, [resultado, anoDetalhado])
 
   return (
-    <div className="bg-[#0A0A0A] text-[#F5F1E8]">
-      {/* HEADER HERO DA CALCULADORA TRIBUTÁRIA */}
-      <section className="relative overflow-hidden border-b border-[#C9A227]/20 bg-gradient-to-b from-[#12110D] via-[#0D0D0D] to-[#0A0A0A] py-14 sm:py-20">
-        {/* Glow dourado de fundo */}
-        <div className="pointer-events-none absolute -top-32 right-1/4 h-[420px] w-[420px] rounded-full bg-[#C9A227]/10 blur-[130px]" />
-        <div className="pointer-events-none absolute top-1/2 -left-20 h-[300px] w-[300px] rounded-full bg-[#8E6F16]/10 blur-[110px]" />
-
-        {/* Linhas finas de grade de segurança jurídica */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(#C9A227 1px, transparent 1px), linear-gradient(to right, #C9A227 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
+    <div className="bg-[#F8FAF8] text-[#15271E]">
+      {/* HEADER HERO DA CALCULADORA TRIBUTÁRIA NA PALETA AGRO */}
+      <section className="relative overflow-hidden border-b border-[#E2EBE5] bg-white py-12 sm:py-16">
+        <div className="pointer-events-none absolute -top-32 right-1/4 h-[350px] w-[350px] rounded-full bg-[#1E4331]/5 blur-[100px]" />
+        <div className="pointer-events-none absolute top-1/2 -left-20 h-[280px] w-[280px] rounded-full bg-[#784D34]/5 blur-[90px]" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-[#C9A227] uppercase transition hover:text-[#FAF3E8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]"
+            className="group inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-[#1E4331] uppercase transition hover:text-[#784D34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E4331]"
           >
             <ArrowLeft
               size={15}
@@ -269,90 +240,87 @@ export default function CalculadoraTributaria() {
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
             <div>
-              <div className="inline-flex items-center gap-2.5 rounded border border-[#C9A227]/35 bg-[#17150E] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#DCBF6F]">
-                <Scale size={14} className="text-[#C9A227]" />
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-[#E2EBE5] bg-[#F4F7F4] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#1E4331]">
+                <Scale size={14} className="text-[#1E4331]" />
                 <span>Simulador Estratégico · LC 214/2025</span>
               </div>
 
-              <h1 className="mt-4 font-serif text-3xl font-normal leading-[1.15] tracking-tight text-[#FAF3E8] sm:text-5xl lg:text-[3.25rem]">
+              <h1 className="mt-4 font-serif text-3xl font-normal leading-[1.15] tracking-tight text-[#15271E] sm:text-5xl lg:text-[3.25rem]">
                 Calculadora da Transição Tributária{' '}
-                <span className="italic font-serif font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#FAF3E8] via-[#DCBF6F] to-[#C9A227]">
-                  2025–2033.
-                </span>
+                <span className="italic font-serif font-semibold text-[#1E4331]">2025–2033.</span>
               </h1>
 
-              <p className="mt-5 max-w-2xl font-sans text-sm leading-relaxed text-[#C4BBAE] sm:text-base">
+              <p className="mt-5 max-w-2xl font-sans text-sm leading-relaxed text-[#425A4E] sm:text-base">
                 Projeção jurídica e financeira do impacto da Reforma Tributária (CBS, IBS e Imposto
                 Seletivo) em comparação ao modelo tributário atual (PIS, COFINS, ICMS, ISS e IPI),
                 com as regras específicas do Agronegócio previstas na Lei Complementar nº 214/2025.
               </p>
 
-              <div className="mt-7 flex flex-wrap items-center gap-6 text-xs text-[#9E9585]">
+              <div className="mt-7 flex flex-wrap items-center gap-6 text-xs text-[#5A7567]">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E4331]" />
                   <span>Redução setorial agro de 60%</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#784D34]" />
                   <span>Crédito presumido de insumos</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E4331]" />
                   <span>Escalonamento 2026–2033</span>
                 </div>
               </div>
             </div>
 
-            {/* Selo Jurídico de Placa de Prestígio */}
-            <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#161510] to-[#0E0E0E] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(201,162,39,0.2)]">
-              {/* Cantoneiras douradas clássicas */}
-              <div className="absolute top-2 left-2 h-3 w-3 border-t border-l border-[#C9A227]/70" />
-              <div className="absolute top-2 right-2 h-3 w-3 border-t border-r border-[#C9A227]/70" />
-              <div className="absolute bottom-2 left-2 h-3 w-3 border-b border-l border-[#C9A227]/70" />
-              <div className="absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[#C9A227]/70" />
+            {/* Selo Jurídico de Placa de Prestígio Agro */}
+            <div className="relative rounded-2xl border border-[#E2EBE5] bg-[#F4F7F4] p-6 shadow-sm">
+              <div className="absolute top-2.5 left-2.5 h-3 w-3 border-t border-l border-[#784D34]" />
+              <div className="absolute top-2.5 right-2.5 h-3 w-3 border-t border-r border-[#784D34]" />
+              <div className="absolute bottom-2.5 left-2.5 h-3 w-3 border-b border-l border-[#784D34]" />
+              <div className="absolute bottom-2.5 right-2.5 h-3 w-3 border-b border-r border-[#784D34]" />
 
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-4">
+              <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-4">
                 <div>
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Moura e Medeiros
                   </span>
-                  <h2 className="font-serif text-lg font-semibold text-[#FAF3E8]">
+                  <h2 className="font-serif text-lg font-semibold text-[#15271E]">
                     Parecer Preliminar Sintético
                   </h2>
                 </div>
-                <Award size={24} className="text-[#DCBF6F]" />
+                <Award size={24} className="text-[#1E4331]" />
               </div>
 
               <div className="mt-4 space-y-3 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#9E9585]">Ano de Virada Legal:</span>
-                  <span className="font-mono font-bold text-[#DCBF6F]">
+                  <span className="text-[#5A7567]">Ano de Virada Legal:</span>
+                  <span className="font-mono font-bold text-[#1E4331]">
                     {resultado.anoVirada
                       ? `Exercício de ${resultado.anoVirada}`
                       : 'Equilíbrio Contínuo'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#9E9585]">Carga Efetiva Atual:</span>
-                  <span className="font-mono text-[#FAF3E8]">
+                  <span className="text-[#5A7567]">Carga Efetiva Atual:</span>
+                  <span className="font-mono text-[#15271E]">
                     {resultado.impactoFinal2033.cargaAtual.toFixed(2)}% da receita
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#9E9585]">Carga no Sistema 2033:</span>
-                  <span className="font-mono text-[#FAF3E8]">
+                  <span className="text-[#5A7567]">Carga no Sistema 2033:</span>
+                  <span className="font-mono text-[#15271E]">
                     {resultado.impactoFinal2033.carga2033.toFixed(2)}% da receita
                   </span>
                 </div>
-                <div className="flex items-center justify-between border-t border-[#252525] pt-3">
-                  <span className="text-[#C9A227] font-semibold">Impacto Final (2033):</span>
+                <div className="flex items-center justify-between border-t border-[#E2EBE5] pt-3">
+                  <span className="text-[#1E4331] font-semibold">Impacto Final (2033):</span>
                   <span
                     className={`font-mono font-bold ${
                       resultado.impactoFinal2033.economiaOuAumento === 'economia'
-                        ? 'text-emerald-400'
+                        ? 'text-emerald-700'
                         : resultado.impactoFinal2033.economiaOuAumento === 'aumento'
-                          ? 'text-amber-400'
-                          : 'text-[#FAF3E8]'
+                          ? 'text-amber-700'
+                          : 'text-[#15271E]'
                     }`}
                   >
                     {resultado.impactoFinal2033.economiaOuAumento === 'economia' ? '↓ ' : '↑ '}
@@ -371,65 +339,60 @@ export default function CalculadoraTributaria() {
 
       {/* ÁREA DE CONTROLE DE MODO & ENTRADA DE DADOS */}
       <section className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-        {/* SEGMENTED CONTROL ELEGANTE: CONSULTA GUIADA vs FORMULÁRIO TÉCNICO */}
-        <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-[#C9A227]/30 bg-gradient-to-r from-[#17150E] via-[#12110D] to-[#17150E] p-4 sm:flex-row sm:items-center sm:p-5 shadow-lg">
+        {/* SEGMENTED CONTROL: CONSULTA GUIADA vs FORMULÁRIO TÉCNICO */}
+        <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-[#E2EBE5] bg-white p-4 sm:flex-row sm:items-center sm:p-5 shadow-sm">
           <div>
-            <span className="font-serif text-[11px] font-semibold tracking-widest text-[#C9A227] uppercase">
+            <span className="font-serif text-[11px] font-semibold tracking-widest text-[#784D34] uppercase">
               Modo de Operação da Calculadora
             </span>
-            <p className="mt-0.5 text-xs text-[#B8AF9F]">
+            <p className="mt-0.5 text-xs text-[#5A7567]">
               Escolha entre a entrevista passo-a-passo (ideal em atendimento ao cliente) ou o
               formulário analítico técnico completo.
             </p>
           </div>
 
-          <div className="inline-flex rounded-lg border border-[#C9A227]/35 bg-[#0C0C0C] p-1.5 shadow-inner self-stretch sm:self-auto">
+          <div className="inline-flex rounded-lg border border-[#E2EBE5] bg-[#F8FAF8] p-1.5 self-stretch sm:self-auto">
             <button
               type="button"
               onClick={() => setModoUso('guiada')}
               className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ${
                 modoUso === 'guiada'
-                  ? 'border border-[#DCBF6F]/70 bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] text-[#0C0C0C] shadow-[0_2px_12px_rgba(201,162,39,0.35)] font-bold'
-                  : 'text-[#9E9585] hover:text-[#DCBF6F]'
+                  ? 'border border-[#1E4331] bg-[#1E4331] text-white shadow-sm font-bold'
+                  : 'text-[#5A7567] hover:text-[#15271E]'
               }`}
             >
               <Sparkles
                 size={14}
-                className={modoUso === 'guiada' ? 'text-[#0C0C0C]' : 'text-[#C9A227]'}
+                className={modoUso === 'guiada' ? 'text-white' : 'text-[#1E4331]'}
               />
               <span>Consulta Guiada</span>
-              <span
-                className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                  modoUso === 'guiada'
-                    ? 'bg-[#0C0C0C]/20 text-[#0C0C0C]'
-                    : 'bg-[#C9A227]/20 text-[#DCBF6F]'
-                }`}
-              >
-                Recomendado
-              </span>
             </button>
-
             <button
               type="button"
               onClick={() => setModoUso('tecnico')}
               className={`flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ${
                 modoUso === 'tecnico'
-                  ? 'border border-[#DCBF6F]/70 bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] text-[#0C0C0C] shadow-[0_2px_12px_rgba(201,162,39,0.35)] font-bold'
-                  : 'text-[#9E9585] hover:text-[#DCBF6F]'
+                  ? 'border border-[#1E4331] bg-[#1E4331] text-white shadow-sm font-bold'
+                  : 'text-[#5A7567] hover:text-[#15271E]'
               }`}
             >
-              <Scale
+              <SlidersHorizontal
                 size={14}
-                className={modoUso === 'tecnico' ? 'text-[#0C0C0C]' : 'text-[#C9A227]'}
+                className={modoUso === 'tecnico' ? 'text-white' : 'text-[#1E4331]'}
               />
               <span>Formulário Técnico</span>
             </button>
           </div>
         </div>
+      </section>
 
-        {/* RENDERIZAÇÃO DO MODO GUIADO (WIZARD PASSO A PASSO) */}
-        {modoUso === 'guiada' && (
-          <div className="mt-8">
+      {/* ÁREA PRINCIPAL: WIZARD GUIADO OU FORMULÁRIO TÉCNICO COM SLIDERS */}
+      <section
+        id="secao-resultados-calculadora"
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+      >
+        {modoUso === 'guiada' ? (
+          <div className="mb-10">
             <ConsultaGuiadaWizard
               valoresIniciais={{
                 setorKey,
@@ -445,210 +408,136 @@ export default function CalculadoraTributaria() {
               onAlternarModoTecnico={() => setModoUso('tecnico')}
             />
           </div>
-        )}
-      </section>
+        ) : null}
 
-      {/* ÁREA PRINCIPAL: FORMULÁRIO JURÍDICO + RESULTADOS */}
-      <section
-        id="secao-resultados-calculadora"
-        className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
-      >
-        <div className="grid gap-10 lg:grid-cols-12">
-          {/* COLUNA ESQUERDA: VISÍVEL SOMENTE NO MODO TÉCNICO, OU COM BOTÃO DE ACESSO */}
+        <div className="grid gap-8 lg:grid-cols-12">
           {modoUso === 'tecnico' ? (
-            <div className="space-y-8 lg:col-span-5">
-              {/* Presets de Setor com Ênfase Agro */}
-              <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
-                    Art. 1º · Segmento de Atividade
-                  </span>
-                  <span className="text-xs text-[#7A7366]">§ Presets Agro</span>
-                </div>
-                <p className="mt-3 text-xs text-[#B8AF9F]">
-                  Selecione um segmento para carregar automaticamente o redutor legal de 60% da LC
-                  214/2025 e as alíquotas típicas da cadeia produtiva:
-                </p>
-
-                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {(Object.keys(SETORES_PRESETS) as SetorPresetKey[]).map((chave) => {
-                    const s = SETORES_PRESETS[chave]
-                    const ativo = setorKey === chave
+            <div className="space-y-6 lg:col-span-5">
+              {/* Presets Setoriais */}
+              <div className="rounded-xl border border-[#E2EBE5] bg-white p-5 shadow-sm">
+                <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
+                  Segmentos do Agronegócio (LC 214/2025)
+                </span>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {(Object.keys(SETORES_PRESETS) as SetorPresetKey[]).map((key) => {
+                    const preset = SETORES_PRESETS[key]
+                    const ativo = setorKey === key
                     return (
                       <button
-                        key={chave}
+                        key={key}
                         type="button"
-                        onClick={() => aplicarPreset(chave)}
-                        className={`text-left rounded border px-3 py-2.5 text-xs transition-all duration-200 ${
+                        onClick={() => aplicarPreset(key)}
+                        className={`rounded-lg border p-2.5 text-left text-xs transition-all ${
                           ativo
-                            ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#FAF3E8] shadow-[0_0_12px_rgba(201,162,39,0.25)] font-semibold'
-                            : 'border-[#C9A227]/20 bg-[#121212] text-[#9E9585] hover:border-[#C9A227]/50 hover:text-[#DCBF6F]'
+                            ? 'border-[#1E4331] bg-[#EBF0EC] text-[#1E4331] font-bold shadow-sm'
+                            : 'border-[#E2EBE5] bg-[#F8FAF8] text-[#425A4E] hover:border-[#1E4331]/40 hover:bg-white'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="truncate">{s.nome}</span>
-                          {s.redutorCbsIbs > 0 && (
-                            <span className="ml-1 text-[10px] text-[#DCBF6F] font-mono">
-                              -{s.redutorCbsIbs}%
-                            </span>
-                          )}
-                        </div>
+                        <span className="block font-semibold">{preset.nome}</span>
+                        <span className="block text-[10px] text-[#5A7567] mt-0.5">
+                          Redutor: {preset.redutorCbsIbs}%
+                        </span>
                       </button>
                     )
                   })}
                 </div>
-                <p className="mt-3 text-[11px] italic text-[#7A7366]">
-                  {SETORES_PRESETS[setorKey].descricao}
-                </p>
               </div>
 
-              {/* SEÇÃO I: FATURAMENTO & DESPESAS COM INSUMOS */}
-              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-                {/* Cantoneira discreta */}
-                <div className="absolute top-1.5 right-1.5 h-2 w-2 border-t border-r border-[#C9A227]/40" />
-
-                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
-                    Capítulo I · Base Operacional
+              {/* Parâmetros Operacionais */}
+              <div className="relative rounded-xl border border-[#E2EBE5] bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
+                    Capítulo I · Base Financeira
                   </span>
-                  <span className="font-mono text-xs text-[#DCBF6F]">§ 1º a § 3º</span>
+                  <span className="font-mono text-xs text-[#1E4331]">§ 1º e § 2º</span>
                 </div>
 
-                <div className="mt-5 space-y-5">
-                  {/* Receita Bruta Anual */}
+                <div className="mt-5 space-y-4">
                   <div>
-                    <div className="flex items-center justify-between text-xs">
-                      <label htmlFor="receita-bruta" className="font-semibold text-[#FAF3E8]">
-                        Receita Bruta Anual de Saídas (R$)
-                      </label>
-                      <span className="font-mono text-[#DCBF6F] font-medium">
+                    <label
+                      htmlFor="receita-bruta"
+                      className="flex items-center justify-between text-xs font-semibold text-[#15271E]"
+                    >
+                      <span>Receita Bruta Anual (R$)</span>
+                      <span className="font-mono text-[#1E4331] text-sm">
                         {formatarBRL(receitaBruta)}
                       </span>
-                    </div>
+                    </label>
                     <input
                       id="receita-bruta"
                       type="range"
                       min={1000000}
-                      max={200000000}
+                      max={120000000}
                       step={500000}
                       value={receitaBruta}
-                      onChange={(e) => {
-                        const val = Number(e.target.value)
-                        setReceitaBruta(val)
-                        // manter proporção do setor caso compras não excedam receita
-                        if (comprasInsumos > val) {
-                          setComprasInsumos(Math.round(val * 0.6))
-                        }
-                      }}
-                      className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                      onChange={(e) => setReceitaBruta(Number(e.target.value))}
+                      className="mt-2 h-1.5 w-full cursor-pointer accent-[#1E4331] bg-[#E2EBE5] rounded-lg"
                     />
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-[10px] text-[#7A7366]">R$ 1 milhão</span>
-                      <input
-                        type="number"
-                        aria-label="Digitar receita bruta anual"
-                        value={receitaBruta}
-                        onChange={(e) => setReceitaBruta(Math.max(0, Number(e.target.value)))}
-                        className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
-                      />
-                      <span className="text-[10px] text-[#7A7366]">R$ 200 milhões</span>
-                    </div>
                   </div>
 
-                  {/* Compras de Insumos / Base de Créditos */}
                   <div>
-                    <div className="flex items-center justify-between text-xs">
-                      <label htmlFor="compras-insumos" className="font-semibold text-[#FAF3E8]">
-                        Compras &amp; Insumos Anuais (Base de Crédito R$)
-                      </label>
-                      <span className="font-mono text-[#DCBF6F] font-medium">
+                    <label
+                      htmlFor="compras-insumos"
+                      className="flex items-center justify-between text-xs font-semibold text-[#15271E]"
+                    >
+                      <span>Compras de Insumos Anual (R$)</span>
+                      <span className="font-mono text-[#1E4331] text-sm">
                         {formatarBRL(comprasInsumos)}
-                        <span className="text-[10px] text-[#9E9585] ml-1">
-                          (
-                          {receitaBruta > 0
-                            ? ((comprasInsumos / receitaBruta) * 100).toFixed(0)
-                            : 0}
-                          %)
-                        </span>
                       </span>
-                    </div>
+                    </label>
                     <input
                       id="compras-insumos"
                       type="range"
-                      min={0}
+                      min={500000}
                       max={receitaBruta}
-                      step={250000}
-                      value={comprasInsumos}
+                      step={500000}
+                      value={Math.min(comprasInsumos, receitaBruta)}
                       onChange={(e) => setComprasInsumos(Number(e.target.value))}
-                      className="mt-2.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                      className="mt-2 h-1.5 w-full cursor-pointer accent-[#1E4331] bg-[#E2EBE5] rounded-lg"
                     />
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-[10px] text-[#7A7366]">R$ 0</span>
-                      <input
-                        type="number"
-                        aria-label="Digitar compras e insumos anuais"
-                        value={comprasInsumos}
-                        onChange={(e) => setComprasInsumos(Math.max(0, Number(e.target.value)))}
-                        className="w-36 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-1 text-right font-mono text-xs text-[#FAF3E8] focus:border-[#C9A227] focus:outline-none"
-                      />
-                      <span className="text-[10px] text-[#7A7366]">100% da receita</span>
-                    </div>
-                    <p className="mt-1 text-[11px] text-[#7A7366]">
-                      * Insumos com incidência de IVA geram créditos integrais no novo sistema
-                      (não-cumulatividade plena).
-                    </p>
+                    <span className="mt-1 block text-[11px] text-[#5A7567]">
+                      Proporção de insumos sobre receita:{' '}
+                      <strong className="text-[#1E4331]">
+                        {((comprasInsumos / receitaBruta) * 100).toFixed(1)}%
+                      </strong>
+                    </span>
                   </div>
 
-                  {/* Regime Tributário Atual */}
                   <div>
-                    <span className="block text-xs font-semibold text-[#FAF3E8]">
-                      Regime Tributário Atual Vigente
-                    </span>
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'lucro_real', label: 'Lucro Real', sub: 'Não-cumulativo' },
-                        { id: 'lucro_presumido', label: 'Presumido', sub: 'Cumulativo' },
-                        { id: 'simples_nacional', label: 'Simples', sub: 'DAS Unificado' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setRegime(item.id as RegimeTributario)}
-                          className={`rounded border p-2 text-center text-xs transition-all ${
-                            regime === item.id
-                              ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_10px_rgba(201,162,39,0.2)]'
-                              : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
-                          }`}
-                        >
-                          <span className="block">{item.label}</span>
-                          <span className="block text-[9px] text-[#7A7366] font-normal">
-                            {item.sub}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                    <label
+                      htmlFor="regime-tributario"
+                      className="block text-xs font-semibold text-[#15271E]"
+                    >
+                      Regime Tributário Vigente
+                    </label>
+                    <select
+                      id="regime-tributario"
+                      value={regime}
+                      onChange={(e) => setRegime(e.target.value as RegimeTributario)}
+                      className="mt-1.5 w-full rounded-lg border border-[#E2EBE5] bg-[#F8FAF8] px-3 py-2 text-xs font-semibold text-[#15271E] focus:border-[#1E4331] focus:bg-white outline-none"
+                    >
+                      <option value="lucro_real">Lucro Real (Não-Cumulativo)</option>
+                      <option value="lucro_presumido">Lucro Presumido (Cumulativo)</option>
+                      <option value="simples_nacional">Simples Nacional</option>
+                    </select>
                   </div>
                 </div>
               </div>
 
-              {/* SEÇÃO II: PARÂMETROS DA REFORMA TRIBUTÁRIA (LC 214/2025) */}
-              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+              {/* Parâmetros LC 214/2025 */}
+              <div className="relative rounded-xl border border-[#E2EBE5] bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Capítulo II · Parâmetros da LC 214/2025
                   </span>
-                  <span className="font-mono text-xs text-[#DCBF6F]">§ 4º e seguintes</span>
+                  <span className="font-mono text-xs text-[#1E4331]">§ 4º e seguintes</span>
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  {/* Redutor Setorial CBS/IBS */}
                   <div>
-                    <label
-                      htmlFor="redutor-cbs-ibs"
-                      className="block text-xs font-semibold text-[#FAF3E8]"
-                    >
+                    <span className="block text-xs font-semibold text-[#15271E]">
                       Redutor de Alíquota Setorial CBS &amp; IBS
-                    </label>
+                    </span>
                     <div className="mt-2 grid grid-cols-4 gap-2">
                       {[
                         { valor: 0, label: '0% (Geral)' },
@@ -660,30 +549,25 @@ export default function CalculadoraTributaria() {
                           key={item.valor}
                           type="button"
                           onClick={() => setRedutorCbsIbs(item.valor)}
-                          className={`rounded border py-2 px-1 text-center text-xs transition-all ${
+                          className={`rounded-lg border py-2 px-1 text-center text-xs transition-all ${
                             redutorCbsIbs === item.valor
-                              ? 'border-[#DCBF6F] bg-[#1E1B12] text-[#DCBF6F] font-bold shadow-[0_0_8px_rgba(201,162,39,0.2)]'
-                              : 'border-[#C9A227]/20 bg-[#101010] text-[#8E8779] hover:text-[#FAF3E8]'
+                              ? 'border-[#1E4331] bg-[#EBF0EC] text-[#1E4331] font-bold shadow-sm'
+                              : 'border-[#E2EBE5] bg-[#F8FAF8] text-[#5A7567] hover:border-[#1E4331]/30'
                           }`}
                         >
                           {item.label}
                         </button>
                       ))}
                     </div>
-                    <p className="mt-1.5 text-[11px] text-[#7A7366]">
-                      A LC 214/2025 prevê desconto de 60% para produtos agropecuários in natura,
-                      sementes e insumos essenciais.
-                    </p>
                   </div>
 
-                  {/* Crédito Presumido do Produtor Rural */}
-                  <div className="rounded border border-[#C9A227]/20 bg-[#101010] p-3.5">
+                  <div className="rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-3.5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="block text-xs font-semibold text-[#FAF3E8]">
+                        <span className="block text-xs font-semibold text-[#15271E]">
                           Crédito Presumido Agropecuário
                         </span>
-                        <span className="block text-[10px] text-[#9E9585]">
+                        <span className="block text-[10px] text-[#5A7567]">
                           Aquisição de produtor rural pessoa física não contribuinte
                         </span>
                       </div>
@@ -694,14 +578,14 @@ export default function CalculadoraTributaria() {
                           onChange={(e) => setTemCreditoPresumidoAgro(e.target.checked)}
                           className="peer sr-only"
                         />
-                        <div className="h-5 w-9 rounded-full bg-[#252525] after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 rounded-full after:bg-[#8E8779] after:transition-all peer-checked:bg-[#C9A227] peer-checked:after:translate-x-full peer-checked:after:bg-[#0A0A0A]" />
+                        <div className="h-5 w-9 rounded-full bg-stone-300 after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 rounded-full after:bg-white after:transition-all peer-checked:bg-[#1E4331] peer-checked:after:translate-x-full" />
                       </label>
                     </div>
                     {temCreditoPresumidoAgro && (
-                      <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2.5">
+                      <div className="mt-3 flex items-center justify-between border-t border-[#E2EBE5] pt-2.5">
                         <label
                           htmlFor="aliq-credito-presumido"
-                          className="text-[11px] text-[#C4BBAE]"
+                          className="text-[11px] text-[#425A4E]"
                         >
                           Alíquota de Crédito Presumido:
                         </label>
@@ -714,19 +598,18 @@ export default function CalculadoraTributaria() {
                             max={15}
                             value={aliquotaCreditoPresumido}
                             onChange={(e) => setAliquotaCreditoPresumido(Number(e.target.value))}
-                            className="w-16 rounded border border-[#C9A227]/30 bg-[#0C0C0C] px-2 py-0.5 text-right font-mono text-xs text-[#FAF3E8]"
+                            className="w-16 rounded-md border border-[#E2EBE5] bg-white px-2 py-0.5 text-right font-mono text-xs text-[#15271E]"
                           />
-                          <span className="text-xs text-[#DCBF6F]">%</span>
+                          <span className="text-xs text-[#1E4331] font-bold">%</span>
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Botão de Toggle para Parâmetros Avançados */}
                   <button
                     type="button"
                     onClick={() => setMostrarParametrosAvancados(!mostrarParametrosAvancados)}
-                    className="flex w-full items-center justify-between rounded border border-[#C9A227]/25 bg-[#121212] px-3.5 py-2.5 text-xs font-semibold text-[#DCBF6F] hover:bg-[#181611] transition-colors"
+                    className="flex w-full items-center justify-between rounded-lg border border-[#E2EBE5] bg-[#F8FAF8] px-3.5 py-2.5 text-xs font-semibold text-[#1E4331] hover:bg-[#EBF0EC] transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       <Sparkles size={14} />
@@ -740,13 +623,13 @@ export default function CalculadoraTributaria() {
                   </button>
 
                   {mostrarParametrosAvancados && (
-                    <div className="space-y-3.5 rounded border border-[#C9A227]/25 bg-[#0C0C0C] p-4 text-xs animate-fade-in">
-                      <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
+                    <div className="space-y-3.5 rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-4 text-xs">
+                      <p className="text-[11px] font-semibold text-[#784D34] uppercase tracking-wider">
                         Alíquotas de Referência Governamentais
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label htmlFor="cbs-ref" className="text-[11px] text-[#A39985]">
+                          <label htmlFor="cbs-ref" className="text-[11px] text-[#5A7567]">
                             CBS Federal de Ref. (%)
                           </label>
                           <input
@@ -755,11 +638,11 @@ export default function CalculadoraTributaria() {
                             step={0.01}
                             value={aliquotaCbsRef}
                             onChange={(e) => setAliquotaCbsRef(Number(e.target.value))}
-                            className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                            className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                           />
                         </div>
                         <div>
-                          <label htmlFor="ibs-ref" className="text-[11px] text-[#A39985]">
+                          <label htmlFor="ibs-ref" className="text-[11px] text-[#5A7567]">
                             IBS Subnacional de Ref. (%)
                           </label>
                           <input
@@ -768,18 +651,18 @@ export default function CalculadoraTributaria() {
                             step={0.01}
                             value={aliquotaIbsRef}
                             onChange={(e) => setAliquotaIbsRef(Number(e.target.value))}
-                            className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                            className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                           />
                         </div>
                       </div>
 
-                      <div className="border-t border-[#222] pt-3">
-                        <p className="text-[11px] font-semibold text-[#DCBF6F] uppercase tracking-wider">
+                      <div className="border-t border-[#E2EBE5] pt-3">
+                        <p className="text-[11px] font-semibold text-[#784D34] uppercase tracking-wider">
                           Alíquotas do Sistema Atual em Edição
                         </p>
                         {regime === 'simples_nacional' ? (
                           <div className="mt-2">
-                            <label htmlFor="das-efetivo" className="text-[11px] text-[#A39985]">
+                            <label htmlFor="das-efetivo" className="text-[11px] text-[#5A7567]">
                               Alíquota Efetiva do DAS (%)
                             </label>
                             <input
@@ -788,13 +671,13 @@ export default function CalculadoraTributaria() {
                               step={0.1}
                               value={aliquotaDas}
                               onChange={(e) => setAliquotaDas(Number(e.target.value))}
-                              className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                              className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                             />
                           </div>
                         ) : (
                           <div className="mt-2 grid grid-cols-3 gap-2">
                             <div>
-                              <label htmlFor="aliq-pis" className="text-[10px] text-[#A39985]">
+                              <label htmlFor="aliq-pis" className="text-[10px] text-[#5A7567]">
                                 PIS (%)
                               </label>
                               <input
@@ -803,11 +686,11 @@ export default function CalculadoraTributaria() {
                                 step={0.05}
                                 value={aliquotaPis}
                                 onChange={(e) => setAliquotaPis(Number(e.target.value))}
-                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                                className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                               />
                             </div>
                             <div>
-                              <label htmlFor="aliq-cofins" className="text-[10px] text-[#A39985]">
+                              <label htmlFor="aliq-cofins" className="text-[10px] text-[#5A7567]">
                                 COFINS (%)
                               </label>
                               <input
@@ -816,11 +699,11 @@ export default function CalculadoraTributaria() {
                                 step={0.1}
                                 value={aliquotaCofins}
                                 onChange={(e) => setAliquotaCofins(Number(e.target.value))}
-                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                                className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                               />
                             </div>
                             <div>
-                              <label htmlFor="aliq-icms" className="text-[10px] text-[#A39985]">
+                              <label htmlFor="aliq-icms" className="text-[10px] text-[#5A7567]">
                                 ICMS (%)
                               </label>
                               <input
@@ -829,19 +712,19 @@ export default function CalculadoraTributaria() {
                                 step={0.5}
                                 value={aliquotaIcms}
                                 onChange={(e) => setAliquotaIcms(Number(e.target.value))}
-                                className="mt-1 w-full rounded border border-[#C9A227]/30 bg-[#161616] px-2 py-1 font-mono text-xs text-[#FAF3E8]"
+                                className="mt-1 w-full rounded-md border border-[#E2EBE5] bg-white px-2 py-1 font-mono text-xs text-[#15271E]"
                               />
                             </div>
                           </div>
                         )}
                       </div>
 
-                      <div className="border-t border-[#222] pt-3">
+                      <div className="border-t border-[#E2EBE5] pt-3">
                         <div className="flex items-center justify-between">
-                          <label htmlFor="aprov-cred-novo" className="text-[11px] text-[#A39985]">
+                          <label htmlFor="aprov-cred-novo" className="text-[11px] text-[#5A7567]">
                             Aproveitamento de Créditos na Entrada (%)
                           </label>
-                          <span className="font-mono text-xs text-[#DCBF6F]">
+                          <span className="font-mono text-xs text-[#1E4331] font-bold">
                             {aproveitamentoCreditoNovo}%
                           </span>
                         </div>
@@ -852,7 +735,7 @@ export default function CalculadoraTributaria() {
                           max={100}
                           value={aproveitamentoCreditoNovo}
                           onChange={(e) => setAproveitamentoCreditoNovo(Number(e.target.value))}
-                          className="mt-1.5 h-1.5 w-full cursor-pointer accent-[#C9A227] bg-[#222]"
+                          className="mt-1.5 h-1.5 w-full cursor-pointer accent-[#1E4331] bg-[#E2EBE5] rounded-lg"
                         />
                       </div>
                     </div>
@@ -860,51 +743,52 @@ export default function CalculadoraTributaria() {
                 </div>
               </div>
 
-              {/* AVISO INSTITUCIONAL RÁPIDO */}
-              <div className="rounded border border-[#C9A227]/20 bg-[#12110D] p-4 text-xs leading-relaxed text-[#A39985]">
-                <span className="font-semibold text-[#DCBF6F]">§ Nota de Conformidade:</span> Os
-                cálculos adotam os marcos legais vigentes da LC 214/2025. Alíquotas de referência
-                oficiais estimadas em 9,21% para CBS e 18,70% para IBS pelo Ministério da Fazenda.
+              <div className="rounded-xl border border-[#E2EBE5] bg-white p-4 text-xs leading-relaxed text-[#2E694D] shadow-sm">
+                <span className="font-semibold text-[#15271E]">§ Nota de Conformidade:</span> Os
+                cálculos adotam os marcos legais vigentes da LC 214/2025. Alíquotas oficiais
+                estimadas em 9,21% para CBS e 18,70% para IBS.
               </div>
             </div>
           ) : (
-            /* No Modo Consulta Guiada: Coluna lateral informativa resumida do cliente */
+            /* Coluna lateral resumida no modo guiada */
             <div className="space-y-6 lg:col-span-4">
-              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-                <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+              <div className="relative rounded-2xl border border-[#E2EBE5] bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-3">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Parâmetros em Vigor
                   </span>
-                  <span className="text-xs text-[#DCBF6F] font-mono">§ Consulta Ativa</span>
+                  <span className="text-xs text-[#1E4331] font-mono font-bold">
+                    § Consulta Ativa
+                  </span>
                 </div>
 
                 <div className="mt-4 space-y-3.5 text-xs">
                   <div>
-                    <span className="text-[11px] text-[#8E8779]">Atividade Agro:</span>
-                    <p className="font-semibold text-[#FAF3E8] mt-0.5">
+                    <span className="text-[11px] text-[#5A7567]">Atividade Agro:</span>
+                    <p className="font-semibold text-[#15271E] mt-0.5">
                       {SETORES_PRESETS[setorKey].nome}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 border-t border-[#222] pt-2.5">
+                  <div className="grid grid-cols-2 gap-2 border-t border-[#E2EBE5] pt-2.5">
                     <div>
-                      <span className="text-[11px] text-[#8E8779]">Receita Anual:</span>
-                      <p className="font-mono font-bold text-[#DCBF6F] mt-0.5">
+                      <span className="text-[11px] text-[#5A7567]">Receita Anual:</span>
+                      <p className="font-mono font-bold text-[#1E4331] mt-0.5">
                         {formatarBRL(receitaBruta)}
                       </p>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#8E8779]">Compras / Insumos:</span>
-                      <p className="font-mono text-[#FAF3E8] mt-0.5">
+                      <span className="text-[11px] text-[#5A7567]">Compras / Insumos:</span>
+                      <p className="font-mono text-[#15271E] mt-0.5">
                         {formatarBRL(comprasInsumos)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 border-t border-[#222] pt-2.5">
+                  <div className="grid grid-cols-2 gap-2 border-t border-[#E2EBE5] pt-2.5">
                     <div>
-                      <span className="text-[11px] text-[#8E8779]">Regime Atual:</span>
-                      <p className="font-medium text-[#FAF3E8] mt-0.5">
+                      <span className="text-[11px] text-[#5A7567]">Regime Atual:</span>
+                      <p className="font-medium text-[#15271E] mt-0.5">
                         {regime === 'lucro_real'
                           ? 'Lucro Real'
                           : regime === 'lucro_presumido'
@@ -913,16 +797,16 @@ export default function CalculadoraTributaria() {
                       </p>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#8E8779]">Redutor LC 214:</span>
-                      <p className="font-mono text-[#DCBF6F] mt-0.5">
+                      <span className="text-[11px] text-[#5A7567]">Redutor LC 214:</span>
+                      <p className="font-mono text-[#1E4331] font-bold mt-0.5">
                         {redutorCbsIbs}% de desconto
                       </p>
                     </div>
                   </div>
 
-                  <div className="border-t border-[#222] pt-2.5">
-                    <span className="text-[11px] text-[#8E8779]">Crédito Presumido Rural:</span>
-                    <p className="font-medium text-[#FAF3E8] mt-0.5">
+                  <div className="border-t border-[#E2EBE5] pt-2.5">
+                    <span className="text-[11px] text-[#5A7567]">Crédito Presumido Rural:</span>
+                    <p className="font-medium text-[#15271E] mt-0.5">
                       {temCreditoPresumidoAgro
                         ? `Ativo (${aliquotaCreditoPresumido}% sobre insumos)`
                         : 'Não aplicável'}
@@ -933,16 +817,15 @@ export default function CalculadoraTributaria() {
                 <button
                   type="button"
                   onClick={() => setModoUso('tecnico')}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded border border-[#C9A227]/40 bg-[#17150E] py-2 text-xs font-semibold text-[#DCBF6F] hover:bg-[#221D12] hover:text-[#FAF3E8] transition-colors"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E4331] bg-[#F4F7F4] py-2 text-xs font-semibold text-[#1E4331] hover:bg-[#EBF0EC] transition-colors"
                 >
                   <SlidersHorizontal size={13} />
                   <span>Editar no Formulário Técnico</span>
                 </button>
               </div>
 
-              {/* Box de apoio ao advogado no atendimento */}
-              <div className="rounded border border-[#C9A227]/20 bg-[#100F0B] p-4 text-xs leading-relaxed text-[#A39985]">
-                <strong className="text-[#DCBF6F] block mb-1">§ Roteiro de Atendimento:</strong>
+              <div className="rounded-xl border border-[#E2EBE5] bg-white p-4 text-xs leading-relaxed text-[#5A7567] shadow-sm">
+                <strong className="text-[#1E4331] block mb-1">§ Roteiro de Atendimento:</strong>
                 Apresente ao cliente os cards comparativos ao lado e o gráfico da trajetória até
                 2033. Mostre como a concessão do redutor de 60% e os créditos integrais de insumos
                 impactam a carga final da operação.
@@ -950,83 +833,80 @@ export default function CalculadoraTributaria() {
             </div>
           )}
 
-          {/* COLUNA DIREITA: RESULTADOS VISUAIS, GRÁFICOS E COMPARATIVOS (7 COLUNAS NO TÉCNICO, 8 NO GUIADO) */}
+          {/* COLUNA DIREITA: RESULTADOS VISUAIS, GRÁFICOS E COMPARATIVOS */}
           <div className={`space-y-8 ${modoUso === 'tecnico' ? 'lg:col-span-7' : 'lg:col-span-8'}`}>
-            {/* CARDS-RESUMO ESTILO PLACA JURÍDICA */}
+            {/* CARDS-RESUMO */}
             <div className="grid gap-4 sm:grid-cols-3">
-              {/* Card 1: Sistema Atual */}
-              <div className="relative rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#161510] to-[#0E0E0E] p-5 shadow-sm">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#C9A227]">
+              <div className="relative rounded-2xl border border-[#E2EBE5] bg-white p-5 shadow-sm">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#784D34]">
                   Sistema Atual (2025)
                 </span>
-                <p className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#FAF3E8]">
+                <p className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#15271E]">
                   {formatarBRL(resultado.impactoFinal2033.valorAtual)}
                 </p>
-                <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2 text-xs">
-                  <span className="text-[#8E8779]">Carga Efetiva:</span>
-                  <span className="font-mono text-[#DCBF6F] font-bold">
+                <div className="mt-3 flex items-center justify-between border-t border-[#E2EBE5] pt-2 text-xs">
+                  <span className="text-[#5A7567]">Carga Efetiva:</span>
+                  <span className="font-mono text-[#1E4331] font-bold">
                     {resultado.impactoFinal2033.cargaAtual.toFixed(2)}%
                   </span>
                 </div>
               </div>
 
-              {/* Card 2: Sistema Pleno (2033) */}
-              <div className="relative rounded-lg border border-[#C9A227]/40 bg-gradient-to-b from-[#1C1810] to-[#11100C] p-5 shadow-sm">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#DCBF6F]">
+              <div className="relative rounded-2xl border border-[#1E4331]/30 bg-white p-5 shadow-sm">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1E4331]">
                   Novo Sistema (2033)
                 </span>
-                <p className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#FAF3E8]">
+                <p className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#1E4331]">
                   {formatarBRL(resultado.impactoFinal2033.valor2033)}
                 </p>
-                <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2 text-xs">
-                  <span className="text-[#8E8779]">Carga Efetiva:</span>
-                  <span className="font-mono text-[#DCBF6F] font-bold">
+                <div className="mt-3 flex items-center justify-between border-t border-[#E2EBE5] pt-2 text-xs">
+                  <span className="text-[#5A7567]">Carga Efetiva:</span>
+                  <span className="font-mono text-[#1E4331] font-bold">
                     {resultado.impactoFinal2033.carga2033.toFixed(2)}%
                   </span>
                 </div>
               </div>
 
-              {/* Card 3: Variação Líquida */}
               <div
-                className={`relative rounded-lg border p-5 shadow-sm ${
+                className={`relative rounded-2xl border p-5 shadow-sm ${
                   resultado.impactoFinal2033.economiaOuAumento === 'economia'
-                    ? 'border-emerald-600/40 bg-gradient-to-b from-[#0F1A14] to-[#0A100C]'
+                    ? 'border-emerald-300 bg-emerald-50/50'
                     : resultado.impactoFinal2033.economiaOuAumento === 'aumento'
-                      ? 'border-amber-600/40 bg-gradient-to-b from-[#1C150C] to-[#120E08]'
-                      : 'border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E]'
+                      ? 'border-amber-300 bg-amber-50/50'
+                      : 'border-[#E2EBE5] bg-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#FAF3E8]">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#15271E]">
                     Variação Projetada
                   </span>
                   {resultado.impactoFinal2033.economiaOuAumento === 'economia' ? (
-                    <TrendingDown size={16} className="text-emerald-400" />
+                    <TrendingDown size={16} className="text-emerald-700" />
                   ) : (
-                    <TrendingUp size={16} className="text-amber-400" />
+                    <TrendingUp size={16} className="text-amber-700" />
                   )}
                 </div>
 
                 <p
                   className={`mt-2 font-serif text-2xl font-bold tracking-tight ${
                     resultado.impactoFinal2033.economiaOuAumento === 'economia'
-                      ? 'text-emerald-400'
+                      ? 'text-emerald-800'
                       : resultado.impactoFinal2033.economiaOuAumento === 'aumento'
-                        ? 'text-amber-400'
-                        : 'text-[#FAF3E8]'
+                        ? 'text-amber-800'
+                        : 'text-[#15271E]'
                   }`}
                 >
                   {resultado.impactoFinal2033.diferencaValor > 0 ? '+' : ''}
                   {formatarBRL(resultado.impactoFinal2033.diferencaValor)}
                 </p>
 
-                <div className="mt-3 flex items-center justify-between border-t border-[#252525] pt-2 text-xs">
-                  <span className="text-[#8E8779]">Impacto p.p.:</span>
+                <div className="mt-3 flex items-center justify-between border-t border-[#E2EBE5] pt-2 text-xs">
+                  <span className="text-[#5A7567]">Impacto p.p.:</span>
                   <span
                     className={`font-mono font-bold ${
                       resultado.impactoFinal2033.diferencaPP < 0
-                        ? 'text-emerald-400'
-                        : 'text-amber-400'
+                        ? 'text-emerald-800'
+                        : 'text-amber-800'
                     }`}
                   >
                     {resultado.impactoFinal2033.diferencaPP > 0 ? '+' : ''}
@@ -1037,29 +917,28 @@ export default function CalculadoraTributaria() {
             </div>
 
             {/* GRÁFICO RECHARTS: EVOLUÇÃO ANO A ANO 2025–2033 */}
-            <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-[#C9A227]/20 pb-4">
+            <div className="rounded-2xl border border-[#E2EBE5] bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-[#E2EBE5] pb-4">
                 <div>
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Projeção Gráfica 2025–2033
                   </span>
-                  <h3 className="font-serif text-lg font-semibold text-[#FAF3E8]">
+                  <h3 className="font-serif text-lg font-semibold text-[#15271E]">
                     Trajetória da Carga Tributária Anual (R$)
                   </h3>
                 </div>
                 <div className="flex items-center gap-3 text-xs">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#8E8779]" />
-                    <span className="text-[#8E8779]">Sistema Antigo</span>
+                    <span className="h-2 w-2 rounded-full bg-stone-400" />
+                    <span className="text-[#5A7567]">Sistema Antigo</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#C9A227]" />
-                    <span className="text-[#DCBF6F]">Novo Sistema</span>
+                    <span className="h-2 w-2 rounded-full bg-[#1E4331]" />
+                    <span className="text-[#1E4331] font-semibold">Novo Sistema</span>
                   </div>
                 </div>
               </div>
 
-              {/* Contêiner do Gráfico Recharts */}
               <div className="mt-6 h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
@@ -1067,30 +946,30 @@ export default function CalculadoraTributaria() {
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
                     <defs>
-                      <linearGradient id="corNovo" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#C9A227" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#C9A227" stopOpacity={0.0} />
+                      <linearGradient id="corNovoAgro" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1E4331" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#1E4331" stopOpacity={0.0} />
                       </linearGradient>
-                      <linearGradient id="corAtual" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#666666" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#666666" stopOpacity={0.0} />
+                      <linearGradient id="corAtualAgro" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#784D34" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#784D34" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#222" />
-                    <XAxis dataKey="ano" stroke="#7A7366" fontSize={11} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2EBE5" />
+                    <XAxis dataKey="ano" stroke="#5A7567" fontSize={11} />
                     <YAxis
-                      stroke="#7A7366"
+                      stroke="#5A7567"
                       fontSize={11}
                       tickFormatter={(value: number) => `R$ ${(value / 1000000).toFixed(1)}M`}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#12110D',
-                        borderColor: '#C9A227',
-                        borderRadius: '6px',
-                        color: '#FAF3E8',
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#1E4331',
+                        borderRadius: '8px',
+                        color: '#15271E',
                         fontSize: '12px',
-                        fontFamily: 'inherit',
+                        boxShadow: '0 4px 12px rgba(30,67,49,0.1)',
                       }}
                       formatter={(val: unknown) => [formatarBRL(Number(val) || 0), '']}
                     />
@@ -1098,32 +977,31 @@ export default function CalculadoraTributaria() {
                     <Area
                       type="monotone"
                       dataKey="Sistema Atual"
-                      stroke="#8E8779"
+                      stroke="#784D34"
                       fillOpacity={1}
-                      fill="url(#corAtual)"
+                      fill="url(#corAtualAgro)"
                       name="Sistema Vigente (Decrescente)"
                     />
                     <Area
                       type="monotone"
                       dataKey="Novo Sistema"
-                      stroke="#C9A227"
+                      stroke="#1E4331"
                       fillOpacity={1}
-                      fill="url(#corNovo)"
+                      fill="url(#corNovoAgro)"
                       name="Novo Sistema (CBS + IBS)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Destaque do Momento de Virada */}
-              <div className="mt-4 flex items-center gap-3 rounded border border-[#C9A227]/25 bg-[#12110D] p-3 text-xs text-[#DCBF6F]">
-                <Scale size={18} className="text-[#C9A227] shrink-0" />
+              <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-3 text-xs text-[#1E4331]">
+                <Scale size={18} className="text-[#1E4331] shrink-0" />
                 <div>
-                  <span className="font-bold text-[#FAF3E8]">Momento de Virada Legal: </span>
+                  <span className="font-bold text-[#15271E]">Momento de Virada Legal: </span>
                   {resultado.anoVirada ? (
                     <span>
                       A transição ganha tração decisiva a partir do exercício de{' '}
-                      <strong className="text-[#FAF3E8]">{resultado.anoVirada}</strong>, com a
+                      <strong className="text-[#1E4331]">{resultado.anoVirada}</strong>, com a
                       extinção gradual de créditos antigos e a substituição pelos débitos da CBS e
                       do IBS.
                     </span>
@@ -1137,34 +1015,34 @@ export default function CalculadoraTributaria() {
               </div>
             </div>
 
-            {/* TABELA DETALHADA ANO A ANO (2025–2033) */}
-            <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+            {/* TABELA DETALHADA ANO A ANO */}
+            <div className="rounded-2xl border border-[#E2EBE5] bg-white p-6 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-3">
                 <div>
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Quadro Comparativo Anual
                   </span>
-                  <h3 className="font-serif text-lg font-semibold text-[#FAF3E8]">
+                  <h3 className="font-serif text-lg font-semibold text-[#15271E]">
                     Demonstrativo da Transição 2025 a 2033
                   </h3>
                 </div>
-                <span className="text-[11px] text-[#7A7366] font-mono">LC 214/2025</span>
+                <span className="text-[11px] text-[#5A7567] font-mono">LC 214/2025</span>
               </div>
 
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-[#252525] text-[#9E9585]">
-                      <th className="py-2.5 px-2 font-medium">Ano</th>
-                      <th className="py-2.5 px-2 font-medium">Fase Legal</th>
-                      <th className="py-2.5 px-2 font-medium text-right">Sistema Vigente</th>
-                      <th className="py-2.5 px-2 font-medium text-right">CBS + IBS</th>
-                      <th className="py-2.5 px-2 font-medium text-right">Total a Recolher</th>
-                      <th className="py-2.5 px-2 font-medium text-right">Carga Efetiva</th>
-                      <th className="py-2.5 px-2 font-medium text-right">Diferença vs 2025</th>
+                    <tr className="border-b border-[#E2EBE5] text-[#5A7567]">
+                      <th className="py-2.5 px-2 font-semibold">Ano</th>
+                      <th className="py-2.5 px-2 font-semibold">Fase Legal</th>
+                      <th className="py-2.5 px-2 font-semibold text-right">Sistema Vigente</th>
+                      <th className="py-2.5 px-2 font-semibold text-right">CBS + IBS</th>
+                      <th className="py-2.5 px-2 font-semibold text-right">Total a Recolher</th>
+                      <th className="py-2.5 px-2 font-semibold text-right">Carga Efetiva</th>
+                      <th className="py-2.5 px-2 font-semibold text-right">Diferença vs 2025</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1F1F1F]">
+                  <tbody className="divide-y divide-[#E2EBE5]">
                     {resultado.projecoes.map((p) => {
                       const selecionado = p.ano === anoDetalhado
                       return (
@@ -1173,14 +1051,14 @@ export default function CalculadoraTributaria() {
                           onClick={() => setAnoDetalhado(p.ano)}
                           className={`cursor-pointer transition-colors ${
                             selecionado
-                              ? 'bg-[#1D1A12] text-[#FAF3E8]'
-                              : 'hover:bg-[#151515] text-[#C4BBAE]'
+                              ? 'bg-[#EBF0EC] text-[#15271E] font-medium'
+                              : 'hover:bg-[#F8FAF8] text-[#425A4E]'
                           }`}
                         >
-                          <td className="py-3 px-2 font-mono font-bold text-[#DCBF6F] whitespace-nowrap">
+                          <td className="py-3 px-2 font-mono font-bold text-[#1E4331] whitespace-nowrap">
                             {p.ano}
                             {p.ano === 2026 && (
-                              <span className="ml-1.5 rounded bg-[#C9A227]/20 px-1 py-0.5 text-[9px] text-[#DCBF6F]">
+                              <span className="ml-1.5 rounded-full bg-[#E2EBE5] px-1.5 py-0.5 text-[9px] text-[#1E4331] font-semibold">
                                 Teste
                               </span>
                             )}
@@ -1191,13 +1069,13 @@ export default function CalculadoraTributaria() {
                           >
                             {p.fase}
                           </td>
-                          <td className="py-3 px-2 text-right font-mono text-[#8E8779]">
+                          <td className="py-3 px-2 text-right font-mono text-[#5A7567]">
                             {formatarBRL(p.totalAtual)}
                           </td>
-                          <td className="py-3 px-2 text-right font-mono text-[#DCBF6F]">
+                          <td className="py-3 px-2 text-right font-mono text-[#1E4331]">
                             {formatarBRL(p.totalNovoSistema)}
                           </td>
-                          <td className="py-3 px-2 text-right font-mono font-semibold text-[#FAF3E8]">
+                          <td className="py-3 px-2 text-right font-mono font-semibold text-[#15271E]">
                             {formatarBRL(p.totalEfetivoAno)}
                           </td>
                           <td className="py-3 px-2 text-right font-mono">
@@ -1206,10 +1084,10 @@ export default function CalculadoraTributaria() {
                           <td
                             className={`py-3 px-2 text-right font-mono font-medium ${
                               p.diferencaValor < -100
-                                ? 'text-emerald-400'
+                                ? 'text-emerald-700 font-bold'
                                 : p.diferencaValor > 100
-                                  ? 'text-amber-400'
-                                  : 'text-[#8E8779]'
+                                  ? 'text-amber-700 font-bold'
+                                  : 'text-[#5A7567]'
                             }`}
                           >
                             {p.diferencaValor > 0 ? '+' : ''}
@@ -1222,78 +1100,75 @@ export default function CalculadoraTributaria() {
                 </table>
               </div>
 
-              <div className="mt-4 flex items-center justify-between text-[11px] text-[#7A7366] border-t border-[#222] pt-3">
+              <div className="mt-4 flex items-center justify-between text-[11px] text-[#5A7567] border-t border-[#E2EBE5] pt-3">
                 <span>
                   * Clique em uma linha da tabela para abrir o desdobramento do exercício.
                 </span>
                 <span>
-                  Exibindo exercício de: <strong className="text-[#DCBF6F]">{anoDetalhado}</strong>
+                  Exibindo exercício de: <strong className="text-[#1E4331]">{anoDetalhado}</strong>
                 </span>
               </div>
             </div>
 
             {/* BREAKDOWN DETALHADO DO ANO SELECIONADO */}
-            <div className="rounded-lg border border-[#C9A227]/30 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#C9A227]/20 pb-3">
+            <div className="rounded-2xl border border-[#E2EBE5] bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between border-b border-[#E2EBE5] pb-3">
                 <div>
-                  <span className="font-serif text-xs font-semibold tracking-widest text-[#C9A227] uppercase">
+                  <span className="font-serif text-xs font-semibold tracking-widest text-[#784D34] uppercase">
                     Desdobramento por Tributo · Exercício {projecaoSelecionada.ano}
                   </span>
-                  <h4 className="font-serif text-base font-semibold text-[#FAF3E8]">
+                  <h4 className="font-serif text-base font-semibold text-[#15271E]">
                     {projecaoSelecionada.fase}
                   </h4>
                 </div>
-                <span className="text-xs text-[#DCBF6F] font-mono">
+                <span className="text-xs text-[#1E4331] font-mono font-semibold">
                   {projecaoSelecionada.artigoLegal}
                 </span>
               </div>
 
-              <p className="mt-3 text-xs leading-relaxed text-[#B8AF9F]">
+              <p className="mt-3 text-xs leading-relaxed text-[#5A7567]">
                 {projecaoSelecionada.descricaoLegal}
               </p>
 
               {projecaoSelecionada.notaEspecial && (
-                <div className="mt-3 rounded border border-amber-500/30 bg-amber-950/20 p-2.5 text-xs text-amber-300">
+                <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900">
                   ⚠️ <strong>Regra Especial do Ano-Teste (Art. 348, LC 214/2025):</strong>{' '}
-                  {projecaoSelecionada.notaEspecial}. O montante recolhido a título de CBS (0,9%) e
-                  IBS (0,1%) é simultaneamente deduzido do PIS e da COFINS devidos, resultando em
-                  impacto líquido financeiro nulo.
+                  {projecaoSelecionada.notaEspecial}.
                 </div>
               )}
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {/* Lado A: Tributos do Novo Sistema */}
-                <div className="rounded border border-[#C9A227]/20 bg-[#101010] p-4 text-xs">
-                  <p className="font-semibold text-[#DCBF6F] uppercase tracking-wider text-[11px] border-b border-[#252525] pb-2">
+                <div className="rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-4 text-xs">
+                  <p className="font-semibold text-[#1E4331] uppercase tracking-wider text-[11px] border-b border-[#E2EBE5] pb-2">
                     Novo Sistema (CBS + IBS)
                   </p>
                   <div className="mt-3 space-y-2.5">
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">
+                      <span className="text-[#5A7567]">
                         CBS Líquida (Ref. {projecaoSelecionada.cbsAliquotaNominal}% com redutor):
                       </span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.cbsLiquida)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">
+                      <span className="text-[#5A7567]">
                         IBS Líquido (Ref. {projecaoSelecionada.ibsAliquotaNominal.toFixed(2)}% com
                         redutor):
                       </span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.ibsLiquida)}
                       </span>
                     </div>
                     {projecaoSelecionada.creditoPresumidoAgro > 0 && (
-                      <div className="flex justify-between text-emerald-400">
+                      <div className="flex justify-between text-emerald-700 font-semibold">
                         <span>Crédito Presumido Agro (Dedução):</span>
                         <span className="font-mono">
                           - {formatarBRL(projecaoSelecionada.creditoPresumidoAgro)}
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between border-t border-[#252525] pt-2 font-bold text-[#DCBF6F]">
+                    <div className="flex justify-between border-t border-[#E2EBE5] pt-2 font-bold text-[#1E4331]">
                       <span>Total Novo Sistema:</span>
                       <span className="font-mono">
                         {formatarBRL(projecaoSelecionada.totalNovoSistema)}
@@ -1302,43 +1177,42 @@ export default function CalculadoraTributaria() {
                   </div>
                 </div>
 
-                {/* Lado B: Tributos Remanescentes do Sistema Vigente */}
-                <div className="rounded border border-[#C9A227]/20 bg-[#101010] p-4 text-xs">
-                  <p className="font-semibold text-[#8E8779] uppercase tracking-wider text-[11px] border-b border-[#252525] pb-2">
+                <div className="rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-4 text-xs">
+                  <p className="font-semibold text-[#784D34] uppercase tracking-wider text-[11px] border-b border-[#E2EBE5] pb-2">
                     Sistema Atual Remanescente no Ano
                   </p>
                   <div className="mt-3 space-y-2.5">
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">PIS Efetivo:</span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="text-[#5A7567]">PIS Efetivo:</span>
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.pisEfetivo)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">COFINS Efetivo:</span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="text-[#5A7567]">COFINS Efetivo:</span>
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.cofinsEfetivo)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">
+                      <span className="text-[#5A7567]">
                         ICMS ({Math.round(projecaoSelecionada.fatorTransicaoAtualIcmsIss * 100)}% da
                         base):
                       </span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.icmsEfetivo)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#9E9585]">
+                      <span className="text-[#5A7567]">
                         ISS ({Math.round(projecaoSelecionada.fatorTransicaoAtualIcmsIss * 100)}% da
                         base):
                       </span>
-                      <span className="font-mono text-[#FAF3E8]">
+                      <span className="font-mono text-[#15271E]">
                         {formatarBRL(projecaoSelecionada.issEfetivo)}
                       </span>
                     </div>
-                    <div className="flex justify-between border-t border-[#252525] pt-2 font-bold text-[#FAF3E8]">
+                    <div className="flex justify-between border-t border-[#E2EBE5] pt-2 font-bold text-[#15271E]">
                       <span>Total Atual Remanescente:</span>
                       <span className="font-mono">
                         {formatarBRL(projecaoSelecionada.totalAtual)}
@@ -1352,18 +1226,18 @@ export default function CalculadoraTributaria() {
         </div>
       </section>
 
-      {/* CRONOGRAMA INSTITUCIONAL DA REFORMA (LINHA DO TEMPO ELEGANTE 2025–2033) */}
-      <section className="border-t border-[#C9A227]/20 bg-[#080808] py-16 sm:py-20">
+      {/* CRONOGRAMA INSTITUCIONAL DA REFORMA 2025–2033 */}
+      <section className="border-t border-[#E2EBE5] bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#784D34]">
               <Calendar size={14} />
               <span>Cronograma Institucional · LC 214/2025</span>
             </span>
-            <h2 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-4xl">
+            <h2 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#15271E] sm:text-4xl">
               Os Marcos Jurídicos da Transição Tributária
             </h2>
-            <p className="mt-4 font-sans text-sm leading-relaxed text-[#B8AF9F]">
+            <p className="mt-4 font-sans text-sm leading-relaxed text-[#425A4E]">
               Linha do tempo oficial estabelecida pela Emenda Constitucional nº 132/2023 e
               regulamentada pela Lei Complementar nº 214/2025, com aplicação direta aos produtores,
               cooperativas e agroindústrias brasileiras.
@@ -1374,21 +1248,20 @@ export default function CalculadoraTributaria() {
             {CRONOGRAMA_EVENTOS.map((evento, idx) => (
               <div
                 key={evento.ano}
-                className="relative rounded-lg border border-[#C9A227]/25 bg-gradient-to-b from-[#13120E] to-[#0D0D0D] p-5 shadow-sm transition-all duration-300 hover:border-[#C9A227]/60 hover:-translate-y-1"
+                className="relative rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-5 shadow-sm transition-all duration-300 hover:border-[#1E4331]/50 hover:-translate-y-1 hover:bg-white"
               >
-                {/* Numeral romano sutil */}
-                <span className="absolute top-4 right-4 font-serif text-[11px] font-semibold text-[#C9A227]/40">
+                <span className="absolute top-4 right-4 font-serif text-[11px] font-semibold text-[#CBB29E]">
                   {['I', 'II', 'III', 'IV', 'V'][idx]}
                 </span>
 
-                <div className="font-mono text-xl font-bold text-[#DCBF6F]">{evento.ano}</div>
-                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#C9A227]">
+                <div className="font-mono text-xl font-bold text-[#1E4331]">{evento.ano}</div>
+                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#784D34]">
                   {evento.fase}
                 </div>
-                <div className="mt-2 text-[10px] font-mono text-[#8E8779]">{evento.artigo}</div>
-                <p className="mt-3 text-xs leading-relaxed text-[#B8AF9F]">{evento.resumo}</p>
+                <div className="mt-2 text-[10px] font-mono text-[#5A7567]">{evento.artigo}</div>
+                <p className="mt-3 text-xs leading-relaxed text-[#425A4E]">{evento.resumo}</p>
 
-                <div className="mt-4 inline-block rounded border border-[#C9A227]/30 bg-[#181610] px-2 py-0.5 text-[10px] font-mono text-[#DCBF6F]">
+                <div className="mt-4 inline-block rounded-full border border-[#E2EBE5] bg-white px-2.5 py-0.5 text-[10px] font-mono text-[#1E4331] font-semibold">
                   {evento.tag}
                 </div>
               </div>
@@ -1397,35 +1270,33 @@ export default function CalculadoraTributaria() {
         </div>
       </section>
 
-      {/* AVISO LEGAL OBRIGATÓRIO & CHAMADA INSTITUCIONAL DE CONSULTORIA */}
-      <section className="border-t border-[#C9A227]/20 bg-gradient-to-b from-[#0D0D0D] to-[#070707] py-16 sm:py-20">
+      {/* AVISO LEGAL OBRIGATÓRIO & CONSULTORIA */}
+      <section className="border-t border-[#E2EBE5] bg-[#F4F7F4] py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-lg border border-[#C9A227]/40 bg-gradient-to-r from-[#14120D] via-[#181610] to-[#14120D] p-8 sm:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-            {/* Cantoneiras de luxo no banner */}
-            <div className="absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-[#C9A227]" />
-            <div className="absolute top-2 right-2 h-4 w-4 border-t-2 border-r-2 border-[#C9A227]" />
-            <div className="absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-[#C9A227]" />
-            <div className="absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-[#C9A227]" />
+          <div className="relative rounded-2xl border border-[#E2EBE5] bg-white p-8 sm:p-12 shadow-sm">
+            <div className="absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-[#784D34]" />
+            <div className="absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-[#784D34]" />
+            <div className="absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-[#784D34]" />
+            <div className="absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-[#784D34]" />
 
             <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
               <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#784D34]">
                   <Scale size={14} />
                   <span>Moura e Medeiros Advogados Associados</span>
                 </div>
-                <h3 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-[#FAF3E8] sm:text-3xl">
+                <h3 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-[#15271E] sm:text-3xl">
                   Precisa de um Diagnóstico Tributário Individualizado para sua Operação?
                 </h3>
-                <p className="mt-4 text-xs leading-relaxed text-[#C4BBAE] sm:text-sm">
+                <p className="mt-4 text-xs leading-relaxed text-[#425A4E] sm:text-sm">
                   Esta calculadora é uma ferramenta demonstrativa e educativa para modelagem de
                   cenários. Cada cadeia do agronegócio possui particularidades contratuais, regimes
                   de crédito presumido, diferimento estadual de ICMS e estruturas societárias que
                   exigem avaliação jurídica pormenorizada.
                 </p>
 
-                {/* Aviso legal formal com § */}
-                <div className="mt-6 rounded border border-[#C9A227]/30 bg-[#100F0A] p-4 text-[11px] leading-relaxed text-[#A39985]">
-                  <strong className="text-[#DCBF6F]">§ Aviso Legal Obrigatório:</strong> As
+                <div className="mt-6 rounded-xl border border-[#E2EBE5] bg-[#F8FAF8] p-4 text-[11px] leading-relaxed text-[#2E694D]">
+                  <strong className="text-[#15271E]">§ Aviso Legal Obrigatório:</strong> As
                   projeções apresentadas constituem simulação estimativa para fins de estudos e não
                   configuram parecer jurídico, consultoria formal ou garantia de resultado
                   tributário. O escritório Moura e Medeiros Advogados Associados disponibiliza
@@ -1437,7 +1308,7 @@ export default function CalculadoraTributaria() {
               <div className="flex flex-col items-start lg:items-end justify-center gap-4">
                 <Link
                   to="/diagnostico"
-                  className="group relative inline-flex items-center gap-3 rounded border border-[#DCBF6F] bg-gradient-to-r from-[#C9A227] via-[#DCBF6F] to-[#B28E1D] px-7 py-4 text-xs font-bold uppercase tracking-wider text-[#0C0C0C] shadow-[0_4px_25px_rgba(201,162,39,0.3)] transition-all duration-300 hover:shadow-[0_0_30px_rgba(201,162,39,0.5)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
+                  className="group relative inline-flex items-center gap-3 rounded-lg border border-[#1E4331] bg-[#1E4331] px-7 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-all duration-200 hover:bg-[#15271E] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E4331]"
                 >
                   <PhoneCall size={16} />
                   <span>Solicitar Diagnóstico Estratégico</span>
@@ -1447,8 +1318,8 @@ export default function CalculadoraTributaria() {
                   />
                 </Link>
 
-                <div className="flex items-center gap-2 text-xs text-[#9E9585]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C9A227]" />
+                <div className="flex items-center gap-2 text-xs text-[#5A7567]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1E4331]" />
                   <span>Atendimento a produtores e agroindústrias em todo o Brasil</span>
                 </div>
               </div>

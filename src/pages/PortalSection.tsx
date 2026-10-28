@@ -122,10 +122,10 @@ export default function PortalSection({ section }: { section: SectionKey }) {
   const Icon = content.icon
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20 bg-[#F8FAF8] text-[#15271E]">
       <Link
         to="/"
-        className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#C9A227] transition hover:text-[#FAF3E8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]"
+        className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#1E4331] transition hover:text-[#784D34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E4331]"
       >
         <ArrowLeft
           size={16}
@@ -136,24 +136,24 @@ export default function PortalSection({ section }: { section: SectionKey }) {
       </Link>
 
       <header className="mt-8 max-w-3xl">
-        <div className="flex h-12 w-12 items-center justify-center rounded border border-[#C9A227]/40 bg-gradient-to-br from-[#1E1B13] to-[#111111] text-[#DCBF6F] shadow-[inset_0_1px_1px_rgba(201,162,39,0.3)]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#E2EBE5] bg-white text-[#1E4331] shadow-sm">
           <Icon size={24} aria-hidden="true" />
         </div>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#784D34]">
           {content.eyebrow} · preview controlado
         </p>
-        <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#FAF3E8] sm:text-5xl">
+        <h1 className="mt-3 font-serif text-3xl font-normal tracking-tight text-[#15271E] sm:text-5xl">
           {content.title}
         </h1>
-        <p className="mt-5 font-sans text-base leading-relaxed text-[#B8AF9F]">{content.intro}</p>
+        <p className="mt-5 font-sans text-base leading-relaxed text-[#425A4E]">{content.intro}</p>
       </header>
 
-      {/* Nota Jurídica Nobre */}
+      {/* Nota Institucional Agro */}
       <div
-        className="mt-8 rounded-lg border border-[#C9A227]/30 bg-[#16140E] p-5 text-xs leading-relaxed text-[#DCBF6F]"
+        className="mt-8 rounded-xl border border-[#E2EBE5] bg-white p-5 text-xs leading-relaxed text-[#2E694D] shadow-sm"
         role="note"
       >
-        <span className="font-bold uppercase tracking-wider text-[#FAF3E8]">
+        <span className="font-bold uppercase tracking-wider text-[#15271E]">
           Conteúdo demonstrativo:
         </span>{' '}
         {content.note}
@@ -166,22 +166,22 @@ export default function PortalSection({ section }: { section: SectionKey }) {
         {content.cards.map((card, idx) => (
           <article
             key={card.title}
-            className="group relative flex min-h-60 flex-col rounded-lg border border-[#C9A227]/25 bg-gradient-to-b from-[#141414] to-[#0E0E0E] p-6 shadow-sm transition-all duration-300 hover:border-[#C9A227]/60 hover:shadow-[0_8px_30px_rgba(0,0,0,0.7),0_0_15px_rgba(201,162,39,0.12)]"
+            className="group relative flex min-h-60 flex-col rounded-xl border border-[#E2EBE5] bg-white p-6 shadow-sm transition-all duration-300 hover:border-[#1E4331]/40 hover:shadow-md hover:-translate-y-0.5"
           >
             <div className="flex items-center justify-between">
-              <span className="rounded border border-[#C9A227]/30 bg-[#1A1812] px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#DCBF6F]">
+              <span className="rounded-full border border-[#E2EBE5] bg-[#F4F7F4] px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#1E4331]">
                 {card.status}
               </span>
-              <span className="font-serif text-xs text-[#C9A227]/40">§ 0{idx + 1}</span>
+              <span className="font-serif text-xs text-[#784D34] font-medium">§ 0{idx + 1}</span>
             </div>
 
-            <h2 className="mt-4 font-serif text-xl font-semibold tracking-tight text-[#FAF3E8] group-hover:text-[#DCBF6F]">
+            <h2 className="mt-4 font-serif text-xl font-semibold tracking-tight text-[#15271E] group-hover:text-[#1E4331]">
               {card.title}
             </h2>
-            <p className="mt-3 flex-1 font-sans text-xs leading-relaxed text-[#A39985]">
+            <p className="mt-3 flex-1 font-sans text-xs leading-relaxed text-[#5A7567]">
               {card.description}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#C9A227] transition-all group-hover:text-[#FAF3E8]">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#1E4331] transition-all group-hover:text-[#784D34]">
               Ver estrutura{' '}
               <ArrowRight
                 size={14}
@@ -194,11 +194,11 @@ export default function PortalSection({ section }: { section: SectionKey }) {
       </section>
 
       {/* Limite desta fase */}
-      <div className="mt-12 rounded-lg border border-[#C9A227]/25 bg-gradient-to-r from-[#12110D] via-[#161510] to-[#12110D] p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C9A227]">
+      <div className="mt-12 rounded-xl border border-[#E2EBE5] bg-white p-6 sm:p-8 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#784D34]">
           Limite desta fase
         </p>
-        <p className="mt-3 max-w-3xl font-sans text-xs leading-relaxed text-[#B8AF9F]">
+        <p className="mt-3 max-w-3xl font-sans text-xs leading-relaxed text-[#425A4E]">
           Esta rota existe para validar a jornada pública e a linguagem do shell. Autenticação,
           modelo editorial, revisão, publicação, coleta de dados e integrações serão tratados
           somente em tarefas autorizadas próprias.

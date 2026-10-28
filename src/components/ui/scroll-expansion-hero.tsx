@@ -141,13 +141,13 @@ export const ScrollExpandMedia = ({
     <div
       ref={sectionRef}
       className={cn(
-        'transition-colors duration-700 ease-in-out overflow-x-hidden bg-[#0A0A0A]',
+        'transition-colors duration-700 ease-in-out overflow-x-hidden bg-[#F8FAF8]',
         className,
       )}
     >
       <section className="relative flex flex-col items-center justify-start min-h-[100dvh]">
         <div className="relative w-full flex flex-col items-center min-h-[100dvh]">
-          {/* Fundo com transição de opacidade ao expandir */}
+          {/* Fundo com transição de opacidade ao expandir: Vinheta verde-floresta e terrosa nobre */}
           <motion.div
             className="absolute inset-0 z-0 h-full pointer-events-none"
             initial={{ opacity: 0 }}
@@ -157,19 +157,19 @@ export const ScrollExpandMedia = ({
             <img
               src={bgImageSrc}
               alt="Cenário de fundo agronegócio"
-              className="w-full h-full object-cover object-center filter brightness-50 contrast-105"
+              className="w-full h-full object-cover object-center filter brightness-60 contrast-105"
               loading="eager"
             />
-            {/* Vinheta escura clássica Moura e Medeiros */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/85 via-[#0A0A0A]/60 to-[#0A0A0A]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#0A0A0A_95%)]" />
+            {/* Vinheta Verde-Floresta Profunda e Marrom Terroso em substituição ao preto */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#1E4331]/80 via-[#15271E]/65 to-[#F8FAF8]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#1B3B2B_90%)] opacity-85" />
           </motion.div>
 
           <div className="container mx-auto flex flex-col items-center justify-start relative z-10 w-full px-4 sm:px-6">
             <div className="flex flex-col items-center justify-center w-full min-h-[100dvh] relative py-12">
-              {/* Moldura central de mídia que expande */}
+              {/* Moldura central de mídia que expande com cantoneiras agro e sombra refinada */}
               <div
-                className="absolute z-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-none rounded-2xl overflow-hidden border border-[#C9A227]/40 shadow-[0_25px_60px_rgba(0,0,0,0.95),0_0_35px_rgba(201,162,39,0.25)]"
+                className="absolute z-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-none rounded-2xl overflow-hidden border border-[#1E4331]/30 bg-[#1E4331] shadow-[0_20px_50px_rgba(30,67,49,0.35)]"
                 style={{
                   width: `${mediaWidth}px`,
                   height: `${mediaHeight}px`,
@@ -197,9 +197,9 @@ export const ScrollExpandMedia = ({
                       />
                       <div className="absolute inset-0 z-10 pointer-events-none" />
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/40 rounded-xl"
-                        initial={{ opacity: 0.7 }}
-                        animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
+                        className="absolute inset-0 bg-gradient-to-t from-[#15271E]/70 via-transparent to-[#1E4331]/40 rounded-xl"
+                        initial={{ opacity: 0.6 }}
+                        animate={{ opacity: 0.4 - scrollProgress * 0.3 }}
                         transition={{ duration: 0.2 }}
                       />
                     </div>
@@ -220,9 +220,9 @@ export const ScrollExpandMedia = ({
                       />
                       <div className="absolute inset-0 z-10 pointer-events-none" />
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/40 rounded-xl"
-                        initial={{ opacity: 0.7 }}
-                        animate={{ opacity: 0.5 - scrollProgress * 0.3 }}
+                        className="absolute inset-0 bg-gradient-to-t from-[#15271E]/70 via-transparent to-[#1E4331]/40 rounded-xl"
+                        initial={{ opacity: 0.6 }}
+                        animate={{ opacity: 0.4 - scrollProgress * 0.3 }}
                         transition={{ duration: 0.2 }}
                       />
                     </div>
@@ -236,26 +236,26 @@ export const ScrollExpandMedia = ({
                       loading="eager"
                     />
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/85 via-black/35 to-black/40 rounded-xl"
-                      initial={{ opacity: 0.65 }}
-                      animate={{ opacity: Math.max(0.4 - scrollProgress * 0.25, 0.15) }}
+                      className="absolute inset-0 bg-gradient-to-t from-[#15271E]/75 via-transparent to-[#1E4331]/30 rounded-xl"
+                      initial={{ opacity: 0.6 }}
+                      animate={{ opacity: Math.max(0.35 - scrollProgress * 0.25, 0.1) }}
                       transition={{ duration: 0.2 }}
                     />
                   </div>
                 )}
 
-                {/* Cantoneiras douradas clássicas no frame expansivo */}
-                <div className="pointer-events-none absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-[#E7D397]/70" />
-                <div className="pointer-events-none absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-[#E7D397]/70" />
-                <div className="pointer-events-none absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-[#E7D397]/70" />
-                <div className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-[#E7D397]/70" />
+                {/* Cantoneiras refinadas em Verde e Terracota no frame expansivo */}
+                <div className="pointer-events-none absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-[#CBB29E]" />
+                <div className="pointer-events-none absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-[#CBB29E]" />
+                <div className="pointer-events-none absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-[#CBB29E]" />
+                <div className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 border-b-2 border-r-2 border-[#CBB29E]" />
               </div>
 
               {/* Tag / subtítulo superior */}
               <div className="flex flex-col items-center text-center relative z-10 mb-6 transition-none">
                 {date && (
                   <p
-                    className="font-serif italic text-lg sm:text-2xl font-medium tracking-wide text-[#E7D397] drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]"
+                    className="font-serif italic text-lg sm:text-2xl font-medium tracking-wide text-[#F4F7F4] drop-shadow-[0_2px_8px_rgba(21,39,30,0.8)]"
                     style={{ transform: `translateX(-${textTranslateX}vw)` }}
                   >
                     {date}
@@ -263,19 +263,19 @@ export const ScrollExpandMedia = ({
                 )}
                 {scrollToExpand && (
                   <div
-                    className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#C9A227]/40 bg-[#14120C]/85 px-4 py-1.5 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
+                    className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/30 bg-[#1E4331]/80 px-4 py-1.5 backdrop-blur-md shadow-md text-white"
                     style={{ transform: `translateX(${textTranslateX}vw)` }}
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#DCBF6F] animate-pulse" />
-                    <span className="font-sans text-xs font-semibold tracking-widest uppercase text-[#F5F1E8]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#689F82] animate-pulse" />
+                    <span className="font-sans text-xs font-semibold tracking-widest uppercase">
                       {scrollToExpand}
                     </span>
-                    <span className="font-mono text-xs text-[#DCBF6F] animate-bounce">↓</span>
+                    <span className="font-mono text-xs text-[#CBB29E] animate-bounce">↓</span>
                   </div>
                 )}
               </div>
 
-              {/* Título com tipografia serifada de alto luxo em tom ouro/champagne */}
+              {/* Título com tipografia serifada de alto padrão */}
               <div
                 className={cn(
                   'flex items-center justify-center text-center gap-2 sm:gap-4 w-full relative z-10 transition-none flex-col',
@@ -283,15 +283,13 @@ export const ScrollExpandMedia = ({
                 )}
               >
                 <motion.h2
-                  className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-[#FAF3E8] drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] transition-none"
+                  className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white drop-shadow-[0_4px_14px_rgba(21,39,30,0.9)] transition-none"
                   style={{ transform: `translateX(-${textTranslateX}vw)` }}
                 >
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FAF3E8] via-[#F5E6C8] to-[#DCBF6F]">
-                    {firstWord}
-                  </span>
+                  <span>{firstWord}</span>
                 </motion.h2>
                 <motion.h2
-                  className="font-serif italic text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-center tracking-tight text-[#DCBF6F] drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] transition-none"
+                  className="font-serif italic text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-center tracking-tight text-[#E2EBE5] drop-shadow-[0_4px_14px_rgba(21,39,30,0.9)] transition-none"
                   style={{ transform: `translateX(${textTranslateX}vw)` }}
                 >
                   {restOfTitle}
@@ -299,7 +297,7 @@ export const ScrollExpandMedia = ({
               </div>
             </div>
 
-            {/* Conteúdo que é revelado após expansão completa */}
+            {/* Conteúdo revelado após expansão completa */}
             <motion.section
               className="flex flex-col w-full py-8 md:py-16"
               initial={{ opacity: 0 }}
